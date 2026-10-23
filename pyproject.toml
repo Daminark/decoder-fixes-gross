@@ -1,0 +1,85 @@
+[project]
+name = "decoder-fixes-gross"
+version = "0.1.0"
+description = "Comparing decoder fixes for sub-distance failures on the Gross code"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Amin Idelhaj" }]
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=9", "pytest-cov", "hypothesis", "pytest-xdist", "mypy", "ruff", "nox", "pre-commit"]
+docs = ["sphinx", "myst-nb", "jupytext", "numpydoc", "pydata-sphinx-theme"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/decoder_fixes_gross"]
+
+[tool.hatch.build.targets.sdist]
+# Source distributions carry only these paths.
+only-include = ["src", "tests", "docs", "scripts", "noxfile.py", "CITATION.cff", "CONTRIBUTING.md", "CHANGELOG.md"]
+
+[tool.pytest]
+# minversion is the oldest pytest that supports every setting here; the native table and strict need 9.
+minversion = "9.0"
+testpaths = ["tests"]
+addopts = ["-ra", "--showlocals", "--import-mode=importlib"]
+strict = true
+filterwarnings = ["error"]
+log_level = "INFO"
+markers = ["slow: long-running tests, skipped unless --runslow is given"]
+
+[tool.coverage.run]
+source = ["decoder_fixes_gross"]
+
+[tool.coverage.report]
+# Set to the current level once there is one, and only raise it.
+fail_under = 0
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+extend-select = [
+  "B",    # bugbear
+  "I",    # isort
+  "UP",   # pyupgrade
+  "SIM",  # simplify
+  "PT",   # pytest style
+  "NPY",  # NumPy-specific rules
+  "RUF",  # Ruff-specific rules
+  "D",    # docstrings
+  "T20",  # no print in library code
+  "PTH",  # pathlib over os.path
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests are not required to have docstrings; written ones are still checked.
+"tests/**" = ["D100", "D103", "D104"]
+# Experiment scripts are applications and may print.
+"scripts/**" = ["T20"]
+# Sphinx configuration is not library code.
+"docs/conf.py" = ["D100"]
+
+[tool.mypy]
+strict = true
+warn_unreachable = true
+enable_error_code = ["ignore-without-code", "redundant-expr", "truthy-bool"]
+files = ["src", "tests", "scripts"]
+
+[tool.repo-review]
+# Waived checks, each with a reason grounded in this project's situation.
+ignore = [
+  "PC140", # mypy runs in CI against the locked environment (nox -s types); a hook would type-check in an isolated environment without the project's dependencies.
+  "PC901", # CI runs pre-commit itself; the hosted pre-commit.ci service is not used.
+  "PC902", # As PC901.
+  "PC903", # As PC901.
+]

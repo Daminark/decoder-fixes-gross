@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+type: software
+title: PROJECT_NAME
+authors:
+  - family-names: Idelhaj
+    given-names: Amin
+repository-code: https://github.com/Daminark/PROJECT_NAME
+license: MIT
+version: 0.1.0
+date-released: DATE

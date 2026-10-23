@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.nox/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.env
+docs/_build/
+docs/jupyter_execute/
+.jupyter_cache/
+.ipynb_checkpoints/
+
+# Large inputs and raw outputs; data/README.md says where each file comes from or how to regenerate it.
+data/*
+!data/README.md
