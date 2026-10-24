@@ -45,6 +45,8 @@ only-include = ["src", "tests", "docs", "scripts", "third_party", "noxfile.py", 
 minversion = "9.0"
 testpaths = ["tests"]
 addopts = ["-ra", "--showlocals", "--import-mode=importlib"]
+# Importlib mode does not put tests/ on sys.path; test helper modules (gf2.py) live there.
+pythonpath = ["tests"]
 strict = true
 filterwarnings = ["error"]
 log_level = "INFO"
