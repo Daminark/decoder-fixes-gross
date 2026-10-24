@@ -106,3 +106,8 @@ ignore = [
 # Stim ships an annotated __init__.pyi but no py.typed marker; follow it rather than treating stim as Any.
 module = ["stim"]
 follow_untyped_imports = true
+
+[[tool.mypy.overrides]]
+# python-igraph has no type information; it is used only in one slow test.
+module = ["igraph"]
+ignore_missing_imports = true
