@@ -6,24 +6,27 @@ Comparing decoder fixes for sub-distance failures on the Gross code
 ---
 maxdepth: 1
 caption: Tutorials
+glob:
 ---
-tutorials/index
+tutorials/*
 ```
 
 ```{toctree}
 ---
 maxdepth: 1
 caption: How-to guides
+glob:
 ---
-howto/reproduce-figures
+howto/*
 ```
 
 ```{toctree}
 ---
 maxdepth: 1
 caption: Explanation
+glob:
 ---
-explanation/results
+explanation/*
 ```
 
 ```{toctree}
