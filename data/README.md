@@ -4,5 +4,8 @@ Large inputs and raw outputs live here and are not committed.
 Each file or folder gets a line below: what it is, where it comes from or which `scripts/` command regenerates it, and its size.
 Small fixtures that tests need live in `tests/data/` and are committed.
 
-| Path | What | Source or command | Size |
-| ---- | ---- | ----------------- | ---- |
+| Path                                                        | What                                                                                                                                                             | Source or command                                                                             | Size    |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------- |
+| `repos/dem_trapping_sets/`                                  | Shallow clone of github.com/Error-Correction-Lab/dem_trapping_sets (no license file); its `examples/include_py` builds the gross-code circuit and merges the DEM | `git clone --depth 1`                                                                         | 0.4 MB  |
+| `zenodo/144_12_12_dem_LETS.zip`                             | Trapping-set supports for the gross code, Zenodo record 21878685, CC-BY-4.0; md5 1efaaa8083405c2b4fd0d8b090d26b98                                                | `curl -L -o ... https://zenodo.org/api/records/21878685/files/144_12_12_dem_LETS.zip/content` | 753 MB  |
+| `lets/ets_supports_full_detector_algorithm1_full_parallel/` | The 19 unpacked CSVs (`a_<a>_b_<b>.csv`), README.txt, SHA256SUMS; ten files are truncated at 4,096-byte boundaries                                               | `unzip -q zenodo/144_12_12_dem_LETS.zip -d lets`                                              | 2.24 GB |
