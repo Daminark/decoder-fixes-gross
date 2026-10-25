@@ -92,11 +92,13 @@ def translate(sets: NDArray[np.integer], g: NDArray[np.integer]) -> NDArray[np.i
     Raises
     ------
     ValueError
-        If ``sets`` is not two-dimensional, ``g`` does not have one entry per row, or an
-        entry of either is out of range.
+        If ``sets`` or ``g`` is not an integer array, ``sets`` is not two-dimensional, ``g``
+        does not have one entry per row, or an entry of either is out of range.
     """
     sets, g = np.asarray(sets), np.asarray(g)
     _check_sets(sets)
+    if not np.issubdtype(g.dtype, np.integer):
+        raise ValueError(f"g must be an integer array, got {g.dtype}")
     if g.shape != (sets.shape[0],):
         raise ValueError(f"g must have shape ({sets.shape[0]},), got {g.shape}")
     if g.size and not (g.min() >= 0 and g.max() < N_TRANSLATIONS):
@@ -129,8 +131,8 @@ def canonicalize(
     Raises
     ------
     ValueError
-        If ``sets`` is not two-dimensional, an entry is out of range, or a row repeats a
-        column.
+        If ``sets`` is not an integer array or not two-dimensional, an entry is out of range,
+        or a row repeats a column.
 
     Notes
     -----
@@ -158,6 +160,8 @@ def canonicalize(
 
 def _check_sets(sets: NDArray[np.integer]) -> None:
     n_columns = column_permutations().shape[1]
+    if not np.issubdtype(sets.dtype, np.integer):
+        raise ValueError(f"sets must be an integer array, got {sets.dtype}")
     if sets.ndim != 2:
         raise ValueError(f"sets must be two-dimensional, got shape {sets.shape}")
     if sets.size and not (sets.min() >= 0 and sets.max() < n_columns):

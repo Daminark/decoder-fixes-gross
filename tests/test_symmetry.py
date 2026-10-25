@@ -1,6 +1,5 @@
 """Tests of the translations and the canonical form of fault sets."""
 
-import igraph as ig
 import numpy as np
 import pytest
 from gf2 import rank
@@ -159,6 +158,17 @@ def test_translate_rejects_element_outside_group() -> None:
         translate(np.array([[0, 1]]), np.array([72]))
 
 
+@pytest.mark.parametrize("dtype", [np.float64, np.bool_])
+def test_canonicalize_rejects_non_integer_sets(dtype: type) -> None:
+    with pytest.raises(ValueError, match="sets must be an integer array"):
+        canonicalize(np.array([[0, 1]], dtype=dtype))
+
+
+def test_translate_rejects_non_integer_group_elements() -> None:
+    with pytest.raises(ValueError, match="g must be an integer array"):
+        translate(np.array([[0, 1]]), np.array([1.0]))
+
+
 def test_canonicalize_rejects_column_outside_model() -> None:
     with pytest.raises(ValueError, match="column indices"):
         canonicalize(np.array([[0, N_COLUMNS]]))
@@ -179,6 +189,9 @@ def test_automorphism_group_of_tanner_graph_with_priors_has_order_72(dem: Dem) -
     # Vertices: detectors, then columns; columns are coloured by their prior, so an
     # automorphism must preserve h and the priors. Observables are not encoded, since they
     # are preserved only modulo h.
+    # Imported here so that the fast suite does not need igraph installed.
+    import igraph as ig
+
     h = dem.h.tocoo()
     n_detectors = h.shape[0]
     _, prior_class = np.unique(np.round(dem.priors, 12), return_inverse=True)
