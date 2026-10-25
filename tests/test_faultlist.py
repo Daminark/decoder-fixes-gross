@@ -79,6 +79,14 @@ def test_fault_list_rejects_invalid_arrays(
         FaultList(sets=sets, orbit_sizes=orbit_sizes)
 
 
+def test_fault_list_arrays_cannot_be_changed_in_place() -> None:
+    fault_list = _small_list()
+    with pytest.raises(ValueError, match="read-only"):
+        fault_list.sets[0, 0] = 1
+    with pytest.raises(ValueError, match="read-only"):
+        fault_list.orbit_sizes[0] = 36
+
+
 def test_load_rejects_file_without_orbit_sizes(tmp_path: Path) -> None:
     path = tmp_path / "bad.npz"
     with path.open("wb") as f:

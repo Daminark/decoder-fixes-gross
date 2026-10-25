@@ -124,6 +124,12 @@ def test_dem_at_rejects_rate_outside_valid_range(p: float) -> None:
         dem_at(p)
 
 
+def test_model_arrays_cannot_be_changed_in_place(dem: Dem) -> None:
+    for array in (dem.priors, dem.h.data, dem.h.indices, dem.l.indptr):
+        with pytest.raises(ValueError, match="read-only"):
+            array[0] = 0
+
+
 def test_dem_rejects_priors_with_wrong_length(dem: Dem) -> None:
     with pytest.raises(ValueError, match="same number of columns"):
         Dem(h=dem.h, l=dem.l, priors=dem.priors[:-1], p=dem.p, n_base=dem.n_base)

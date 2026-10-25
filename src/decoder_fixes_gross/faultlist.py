@@ -27,6 +27,9 @@ class FaultList:
     orbit_sizes : numpy.ndarray
         int16 array of shape [N]; each entry a divisor of 72.
 
+    Both arrays are made read-only in place, so :meth:`content_hash` stays valid for the
+    life of the list.
+
     Raises
     ------
     ValueError
@@ -37,7 +40,7 @@ class FaultList:
     orbit_sizes: NDArray[np.int16]
 
     def __post_init__(self) -> None:
-        """Check dtypes, shapes, row order and orbit sizes."""
+        """Check dtypes, shapes, row order and orbit sizes, then freeze the arrays."""
         sets, sizes = self.sets, self.orbit_sizes
         if sets.dtype != np.int32 or sets.ndim != 2 or sets.shape[1] < 1:
             raise ValueError(
@@ -54,6 +57,8 @@ class FaultList:
             raise ValueError("rows of sets must be in strictly increasing lexicographic order")
         if np.any(sizes <= 0) or np.any(N_TRANSLATIONS % sizes != 0):
             raise ValueError(f"every orbit size must divide {N_TRANSLATIONS}")
+        sets.flags.writeable = False
+        sizes.flags.writeable = False
 
     def save(self, path: Path) -> None:
         """Write the list to ``path`` as an uncompressed ``.npz`` with keys sets, orbit_sizes."""

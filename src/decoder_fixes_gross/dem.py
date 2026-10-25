@@ -45,6 +45,9 @@ class Dem:
         Number of leading columns that are physical fault mechanisms; later columns, if any,
         were added by an augmentation.
 
+    The arrays of ``h``, ``l`` and ``priors`` are made read-only in place, so a model cannot
+    change after construction.
+
     Raises
     ------
     ValueError
@@ -59,7 +62,7 @@ class Dem:
     n_base: int
 
     def __post_init__(self) -> None:
-        """Check that the parts agree on the number of columns."""
+        """Check that the parts agree on the number of columns, then freeze the arrays."""
         n_columns = self.h.shape[1]
         if self.l.shape[1] != n_columns or self.priors.shape != (n_columns,):
             raise ValueError(
@@ -68,6 +71,12 @@ class Dem:
             )
         if not 1 <= self.n_base <= n_columns:
             raise ValueError(f"n_base must be in [1, {n_columns}], got {self.n_base}")
+        for array in (*_arrays_of(self.h), *_arrays_of(self.l), self.priors):
+            array.flags.writeable = False
+
+
+def _arrays_of(matrix: sp.csc_matrix) -> tuple[NDArray[np.generic], ...]:
+    return (matrix.data, matrix.indices, matrix.indptr)
 
 
 def dem_at(p: float) -> Dem:
