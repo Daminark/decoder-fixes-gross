@@ -21,6 +21,8 @@ from numpy.typing import NDArray
 
 # Every noise argument of the stored circuit equals this rate.
 _P_STORED = 1e-3
+# Largest argument Stim accepts for DEPOLARIZE1, the most restrictive channel in the circuit.
+_P_MAX = 0.75
 
 _ColumnKey = tuple[tuple[int, ...], tuple[int, ...]]
 
@@ -82,7 +84,8 @@ def dem_at(p: float) -> Dem:
     Parameters
     ----------
     p : float
-        Physical error rate, in (0, 1).
+        Physical error rate, in (0, 3/4]; Stim rejects single-qubit depolarizing noise
+        above 3/4.
 
     Returns
     -------
@@ -93,10 +96,10 @@ def dem_at(p: float) -> Dem:
     Raises
     ------
     ValueError
-        If ``p`` is not in (0, 1).
+        If ``p`` is not in (0, 3/4].
     """
-    if not 0 < p < 1:
-        raise ValueError(f"p must be in (0, 1), got {p}")
+    if not 0 < p <= _P_MAX:
+        raise ValueError(f"p must be in (0, {_P_MAX}], got {p}")
     keys, h, l = _columns()
     priors = np.zeros(h.shape[1])
     for key, probability in _mechanisms(_circuit_at(p).detector_error_model()):

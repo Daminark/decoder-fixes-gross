@@ -114,8 +114,12 @@ def test_priors_scale_in_proportion_to_rate(dem: Dem, p: float) -> None:
     assert ratio.max() <= 1.05
 
 
-@pytest.mark.parametrize("p", [0.0, -1e-3, 1.0])
-def test_dem_at_rejects_rate_outside_unit_interval(p: float) -> None:
+def test_dem_at_accepts_largest_rate_stim_allows() -> None:
+    assert dem_at(0.75).p == 0.75
+
+
+@pytest.mark.parametrize("p", [0.0, -1e-3, 0.76, 1.0])
+def test_dem_at_rejects_rate_outside_valid_range(p: float) -> None:
     with pytest.raises(ValueError, match="p must be in"):
         dem_at(p)
 

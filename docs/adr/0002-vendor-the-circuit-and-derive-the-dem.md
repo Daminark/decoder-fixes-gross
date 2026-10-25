@@ -28,7 +28,9 @@ The columns do not depend on p, since they depend only on which mechanisms exist
 
 ## Consequences
 
-The probability of every mechanism is exact at every p, and no approximation of the priors has to be defended or bounded.
+The prior of a column that holds one mechanism is exact at every p.
+A column that merges several mechanisms carries the plain sum of their probabilities, as in the model the published lists were computed on; it differs from the exact combination at second order, by at most 0.15% per column at 1e-3.
+No rescaling of the priors across rates has to be defended or bounded.
 The Stim version is pinned, because the derivation of the model from the circuit is part of the fixture.
 A circuit builder from another source replaces the stored text only when its circuit equals the stored one; that replacement is a new decision record that supersedes this one.
 If a circuit appears whose noise arguments are not all fixed multiples of p, the scaling rule has to be restated.

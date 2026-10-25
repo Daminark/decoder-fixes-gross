@@ -32,7 +32,7 @@ The estimate of the failure floor weights each fault set by its probability at p
 A model stored at 1e-3 alone does not give these probabilities exactly, because the probability Stim assigns to a mechanism can combine several circuit faults and is not exactly proportional to p.
 Since every noise argument in the circuit equals p, we instead rebuild the circuit at p by multiplying each noise argument by p / 1e-3, and derive the model from it.
 Which mechanisms exist does not depend on p, so `h`, `l` and the column order are the same at every rate, and only the priors change.
-At p = 1e-4 every prior is between 0.095 and 0.105 times its value at 1e-3, which is the size of the departure from proportionality.
+At p = 1e-4 every prior is between 0.09998 and 0.10025 times its value at 1e-3, so the departure from proportionality is under 0.3%.
 
 ## The translations
 
