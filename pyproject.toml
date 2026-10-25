@@ -56,8 +56,8 @@ markers = ["slow: long-running tests, skipped unless --runslow is given"]
 source = ["decoder_fixes_gross"]
 
 [tool.coverage.report]
-# Set to the current level once there is one, and only raise it.
-fail_under = 0
+# The current level of the full suite (nox -s tests_full, as in CI); only ever raised.
+fail_under = 99
 
 [tool.ruff]
 line-length = 100
