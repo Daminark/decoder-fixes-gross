@@ -16,7 +16,11 @@ from decoder_fixes_gross.symmetry import (
 )
 
 N_COLUMNS = 8784
-# Translations checked in the fast suite: one along each axis of the torus and one along both.
+# Translations checked in the fast suite. g = 1 and g = 6 generate the group, and both
+# properties (h and the priors preserved, l preserved modulo h) are closed under composition,
+# so passing on the generators shows every translation is a symmetry of the model. g = 41,
+# along both axes, is a spot check of a mixed element; the slow suite checks every row of
+# column_permutations, which the generator argument does not cover.
 FAST_TRANSLATIONS = {1, 6, 41}
 ALL_TRANSLATIONS = [
     pytest.param(g, marks=() if g in FAST_TRANSLATIONS else pytest.mark.slow)
