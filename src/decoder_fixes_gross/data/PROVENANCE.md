@@ -10,11 +10,23 @@
 
 ## Call
 
-With `src/codes_q.py` and `src/build_circuit.py` of that commit, and Stim 1.16.0:
+With `src/codes_q.py` and `src/build_circuit.py` of that commit, and Stim 1.16.0.
+`codes_q.py` imports `.utils` relatively, so the modules must be loaded as part of a package, but the repository's `src/__init__.py` imports Cython extensions that would have to be built first.
+The call therefore registers a stub package whose path is the repository's `src/` and loads the two modules from it, without running that `__init__.py`:
 
 ```python
-code, A_list, B_list = create_bivariate_bicycle_codes(12, 6, [3], [1, 2], [1, 2], [3])
-circuit = build_circuit(code, A_list, B_list, p=0.001, num_repeat=12)
+import importlib
+import sys
+import types
+
+package = types.ModuleType("gong")
+package.__path__ = ["<clone of the repository>/src"]
+sys.modules["gong"] = package
+codes_q = importlib.import_module("gong.codes_q")
+build_circuit = importlib.import_module("gong.build_circuit")
+
+code, A_list, B_list = codes_q.create_bivariate_bicycle_codes(12, 6, [3], [1, 2], [1, 2], [3])
+circuit = build_circuit.build_circuit(code, A_list, B_list, p=0.001, num_repeat=12)
 text = str(circuit) + "\n"
 ```
 
