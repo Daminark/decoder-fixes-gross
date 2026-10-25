@@ -1,5 +1,6 @@
 """Tests of the stored circuit and the detector error model."""
 
+import hashlib
 from importlib.resources import files
 
 import numpy as np
@@ -92,13 +93,25 @@ def test_prior_sum_and_no_fault_probability_pin_the_merge_rule(dem: Dem) -> None
     np.testing.assert_allclose(np.prod(1 - dem.priors), 2.02239e-5, rtol=1e-5)
 
 
-def test_model_at_1e_4_has_same_columns_and_priors_near_one_tenth(dem: Dem) -> None:
-    low = dem_at(1e-4)
-    np.testing.assert_array_equal(low.h.toarray(), dem.h.toarray())
-    np.testing.assert_array_equal(low.l.toarray(), dem.l.toarray())
-    ratio = low.priors / dem.priors
-    assert ratio.min() >= 0.095
-    assert ratio.max() <= 0.105
+def test_column_order_is_first_appearance_in_flattened_model(dem: Dem) -> None:
+    # The published trapping-set lists index columns in this order. The digest was recorded
+    # when h matched the independent build's H.npz bit for bit.
+    h = dem.h
+    supports = [h.indices[h.indptr[c] : h.indptr[c + 1]].tolist() for c in range(3)]
+    assert supports == [[0, 1, 23], [0, 1, 95], [0, 5, 22]]
+    digest = hashlib.sha256()
+    digest.update(h.indptr.astype("<i4").tobytes())
+    digest.update(h.indices.astype("<i4").tobytes())
+    assert digest.hexdigest() == "9e0ecdf930214ab7265297873e028e371d96681ebff734bf4b12ba45bd85341e"
+
+
+@pytest.mark.parametrize("p", [1e-4, 2e-3, 4e-3])
+def test_priors_scale_in_proportion_to_rate(dem: Dem, p: float) -> None:
+    # Merged mechanisms depart from proportionality at second order: under 0.3% at 1e-4 and
+    # under 1% at 4e-3, the top of the Monte Carlo range. A 5% band catches a wrong scale.
+    ratio = (dem_at(p).priors / dem.priors) / (p / 1e-3)
+    assert ratio.min() >= 0.95
+    assert ratio.max() <= 1.05
 
 
 @pytest.mark.parametrize("p", [0.0, -1e-3, 1.0])

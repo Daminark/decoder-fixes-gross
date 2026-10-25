@@ -84,6 +84,30 @@ def test_pair_fixed_by_half_turn_has_orbit_size_36() -> None:
     assert orbit_sizes.tolist() == [36]
 
 
+@pytest.mark.parametrize(
+    ("fault_set", "orbit_size"),
+    [
+        # The orbit of column 0 under g = 24, 18, 12, elements of order 3, 4, 6 (s = 4, 3, 2).
+        ([0, 264, 480], 24),
+        ([0, 76, 210, 372], 18),
+        ([0, 144, 150, 264, 372, 480], 12),
+    ],
+)
+def test_set_fixed_by_cyclic_subgroup_has_orbit_size_72_over_its_order(
+    fault_set: list[int], orbit_size: int
+) -> None:
+    _, orbit_sizes = canonicalize(np.array([fault_set]))
+    assert orbit_sizes.tolist() == [orbit_size]
+
+
+def test_translate_moves_column_0_to_column_97_under_g_7(dem: Dem) -> None:
+    # Column 0 has detectors {0, 1, 23}; g = 7 = (s, u) = (1, 1) sends (a, b) to (a + 1, b + 1),
+    # so detectors 0, 1, 23 = (0,0), (0,1), (3,5) go to (1,1), (1,2), (4,0) = 7, 8, 24.
+    images = translate(np.array([[0]]), np.array([7]))
+    assert images.tolist() == [[97]]
+    assert dem.h.indices[dem.h.indptr[97] : dem.h.indptr[98]].tolist() == [7, 8, 24]
+
+
 def _random_sets(seed: int, w: int, n: int = 8) -> np.ndarray:
     rng = np.random.default_rng(seed)
     return np.array([rng.choice(N_COLUMNS, size=w, replace=False) for _ in range(n)])
