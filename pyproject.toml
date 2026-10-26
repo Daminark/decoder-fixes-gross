@@ -7,10 +7,26 @@ license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.11"
 authors = [{ name = "Amin Idelhaj" }]
-dependencies = []
+dependencies = [
+    "numpy>=2.4.6",
+    "scipy>=1.17.1",
+    # Pinned: the model is derived from the stored circuit by Stim, so Stim is part of the fixture.
+    "stim==1.16.0",
+]
 
 [dependency-groups]
-dev = ["pytest>=9", "pytest-cov", "hypothesis", "pytest-xdist", "mypy", "ruff", "nox", "pre-commit"]
+dev = [
+    "pytest>=9",
+    "pytest-cov",
+    "hypothesis",
+    "pytest-xdist",
+    "mypy",
+    "ruff",
+    "nox",
+    "pre-commit",
+    "scipy-stubs>=1.17.1.5",
+    "python-igraph>=1.0.0",
+]
 docs = ["sphinx", "myst-nb", "jupytext", "numpydoc", "pydata-sphinx-theme"]
 
 [build-system]
@@ -22,13 +38,15 @@ packages = ["src/decoder_fixes_gross"]
 
 [tool.hatch.build.targets.sdist]
 # Source distributions carry only these paths.
-only-include = ["src", "tests", "docs", "scripts", "noxfile.py", "CITATION.cff", "CONTRIBUTING.md", "CHANGELOG.md"]
+only-include = ["src", "tests", "docs", "scripts", "third_party", "noxfile.py", "CITATION.cff", "CONTRIBUTING.md", "CHANGELOG.md"]
 
 [tool.pytest]
 # minversion is the oldest pytest that supports every setting here; the native table and strict need 9.
 minversion = "9.0"
 testpaths = ["tests"]
 addopts = ["-ra", "--showlocals", "--import-mode=importlib"]
+# Importlib mode does not put tests/ on sys.path; test helper modules (gf2.py) live there.
+pythonpath = ["tests"]
 strict = true
 filterwarnings = ["error"]
 log_level = "INFO"
@@ -38,8 +56,8 @@ markers = ["slow: long-running tests, skipped unless --runslow is given"]
 source = ["decoder_fixes_gross"]
 
 [tool.coverage.report]
-# Set to the current level once there is one, and only raise it.
-fail_under = 0
+# The current level of the full suite (nox -s tests_full, as in CI); only ever raised.
+fail_under = 99
 
 [tool.ruff]
 line-length = 100
@@ -83,3 +101,13 @@ ignore = [
   "PC902", # As PC901.
   "PC903", # As PC901.
 ]
+
+[[tool.mypy.overrides]]
+# Stim ships an annotated __init__.pyi but no py.typed marker; follow it rather than treating stim as Any.
+module = ["stim"]
+follow_untyped_imports = true
+
+[[tool.mypy.overrides]]
+# python-igraph has no type information; it is used only in one slow test.
+module = ["igraph"]
+ignore_missing_imports = true

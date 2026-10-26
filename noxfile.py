@@ -16,7 +16,16 @@ nox.options.default_venv_backend = "none"
 
 @nox.session
 def lint(session: nox.Session) -> None:
-    """Run every pre-commit hook on every file."""
+    """Run every pre-commit hook on every file, untracked files included."""
+    # pre-commit --all-files sees only files git tracks; marking untracked files as intent to
+    # add puts them in that set without staging their content.
+    untracked = session.run(
+        "git", "ls-files", "--others", "--exclude-standard", "-z", silent=True, external=True
+    )
+    if isinstance(untracked, str) and untracked:
+        session.run(
+            "git", "add", "--intent-to-add", "--", *untracked.split("\0")[:-1], external=True
+        )
     session.run("uv", "run", "pre-commit", "run", "--all-files", external=True)
 
 

@@ -1,5 +1,8 @@
 API reference
 =============
 
-.. automodule:: decoder_fixes_gross
-   :members:
+.. autosummary::
+   :toctree: generated
+   :recursive:
+
+   decoder_fixes_gross
