@@ -1,0 +1,58 @@
+{
+  "relay_bp_version": "0.2.0",
+  "settings": {
+    "gamma0": 0.125,
+    "pre_iter": 80,
+    "num_sets": 300,
+    "set_max_iter": 60,
+    "gamma_dist_interval": [
+      -0.24,
+      0.66
+    ],
+    "stop_nconv": 1
+  },
+  "p": 0.001,
+  "seed": 0,
+  "sample_sha256": "f940bfc714740addcee100270ecb557d15e89e6e87dc7257c6c7e3c3f485f42f",
+  "commit": "b787591",
+  "weight_4_group_0": {
+    "sets": 355,
+    "failures_installed": 1,
+    "failures_0_2_2": 1,
+    "max_failures": 4
+  },
+  "weight_5": {
+    "sets": 1170,
+    "failures_installed": 13,
+    "failures_0_2_2": 13,
+    "failure_range": [
+      4,
+      22
+    ]
+  },
+  "by_weight": {
+    "2": {
+      "sets": 284,
+      "failures_installed": 0,
+      "failures_0_2_2": 0
+    },
+    "3": {
+      "sets": 725,
+      "failures_installed": 0,
+      "failures_0_2_2": 0
+    },
+    "4": {
+      "sets": 475,
+      "failures_installed": 1,
+      "failures_0_2_2": 1
+    },
+    "5": {
+      "sets": 1170,
+      "failures_installed": 13,
+      "failures_0_2_2": 13
+    }
+  },
+  "sets_with_different_outcome": 0,
+  "passed": true,
+  "decision": "pin the installed version"
+}
