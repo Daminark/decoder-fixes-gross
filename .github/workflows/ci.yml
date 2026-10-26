@@ -49,7 +49,7 @@ jobs:
           enable-cache: true
       - run: uv sync
       - run: uv run nox -s tests
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
       - run: uv run nox -s tests_full
         if: github.event_name == 'pull_request'
 
