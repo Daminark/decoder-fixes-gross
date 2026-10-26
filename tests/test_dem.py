@@ -95,7 +95,7 @@ def test_prior_sum_and_no_fault_probability_pin_the_merge_rule(dem: Dem) -> None
 
 def test_column_order_is_first_appearance_in_flattened_model(dem: Dem) -> None:
     # The published trapping-set lists index columns in this order. The digest was recorded
-    # when h matched the independent build's H.npz bit for bit.
+    # when h matched the independent dem_trapping_sets build bit for bit.
     h = dem.h
     supports = [h.indices[h.indptr[c] : h.indptr[c + 1]].tolist() for c in range(3)]
     assert supports == [[0, 1, 23], [0, 1, 95], [0, 5, 22]]
