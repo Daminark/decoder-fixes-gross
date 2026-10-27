@@ -105,7 +105,7 @@ class LetsOrbits:
         return int(self.orbits.orbit_sizes.sum(dtype=np.int64)) - self.rows
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class LetsFile:
     """What :func:`read_lets_file` read from one file.
 
@@ -200,7 +200,7 @@ def read_lets_files(directory: Path) -> list[LetsFile]:
     return [read_lets_file(by_class[key]) for key in sorted(by_class)]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class InducedClasses:
     """The class of each fault set in the Tanner graph of a check matrix.
 
@@ -457,7 +457,7 @@ def _canonical_subsets(
     return canonical, sizes
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=False)
 class _OrbitTable:
     """Distinct canonical rows in lexicographic order, with orbit sizes and row counts."""
 
