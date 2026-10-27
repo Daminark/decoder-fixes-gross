@@ -342,7 +342,7 @@ class LetsList:
     classes : tuple of LetsOrbits
         Classes with distinct (a, b), in increasing order of (a, b).
     incidence : dict of (int, int) to dict of int to numpy.ndarray
-        As :attr:`Supports.incidence`, with one entry per class.
+        As the ``incidence`` field of :class:`Supports`, with one entry per class.
 
     The incidence arrays are made read-only in place.
 
