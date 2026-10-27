@@ -17,7 +17,9 @@ An elementary set has a compact picture: its columns are points, each degree-two
 The set is a *leafless elementary trapping set* (LETS) when, in addition, every point of this picture lies on at least two edges.
 
 The interest of such a set is that its syndrome is small compared with its size, so an iterative decoder sees little local evidence against the faults inside it.
-An (a, 0) set flips no detector at all, and is a degeneracy of the model rather than an error the decoder could see.
+An (a, 0) set flips no detector at all.
+It flips no observable either: one that did would be a logical error no detector sees, of weight at most 5, far below the circuit distance, which the literature puts at 10 (Bravyi et al.) or 12 (Pacenti et al.); all 3,379 orbits of the (a, 0) classes satisfy this.
+Such a set is a degeneracy of the model rather than an error the decoder could see.
 
 ## The published enumeration
 
@@ -36,7 +38,7 @@ Checking the representative checks every row of its orbit, so this tests all 92 
 
 ## Cut files and orbit closure
 
-Ten of the files end on a 4,096-byte boundary, and eight of these end in the middle of a row.
+Ten of the files end on a 4,096-byte boundary, and eight of these end in an unterminated line, seven of them in the middle of a row.
 The cut loses the rows that would have followed, so an orbit near the end of such a file may have only some of its members in the file.
 In all, 1,473 rows are absent from orbits that the files otherwise contain.
 We drop the unterminated last line of a file, since it is a fragment of a row in all but one case, and we count it.

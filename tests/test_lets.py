@@ -70,6 +70,18 @@ def test_unterminated_last_line_is_dropped_and_counted(tmp_path: Path) -> None:
     assert read.orbits.missing == 1
 
 
+def test_complete_last_row_without_newline_is_dropped(tmp_path: Path) -> None:
+    text = (SAMPLE / "a_2_b_3.csv").read_text()
+    path = tmp_path / "a_2_b_3.csv"
+    # The last row is whole but lacks its newline, as in the dataset's (5,4) file.
+    path.write_text(text.removesuffix("\n"))
+    read = read_lets_file(path)
+    assert read.dropped_lines == 1
+    assert read.orbits.rows == 6047
+    assert len(read.orbits.orbits.sets) == 84
+    assert read.orbits.missing == 1
+
+
 def test_deleted_row_still_yields_its_full_orbit(tmp_path: Path) -> None:
     lines = (SAMPLE / "a_2_b_3.csv").read_text().splitlines(keepends=True)
     path = tmp_path / "a_2_b_3.csv"
@@ -146,6 +158,12 @@ def test_every_fixture_representative_has_its_file_class_and_is_elementary() -> 
         classes = induced_classes(h, lets.orbits.sets)
         assert set(classes.b.tolist()) == {lets.b}, path.name
         assert classes.max_check_degree.max() <= 2, path.name
+
+
+def test_fixture_lets_of_class_b0_flip_no_observable() -> None:
+    l = dem_at(1e-3).l.toarray()
+    sets = read_lets_file(SAMPLE / "a_3_b_0.csv").orbits.orbits.sets
+    assert not np.any(l[:, sets].sum(axis=2) % 2)
 
 
 def test_induced_classes_rejects_column_outside_h() -> None:
@@ -357,10 +375,35 @@ def test_full_dataset_reproduces_the_orbit_and_list_counts(
     }  # fmt: skip
     assert sum(orbits.values()) == 1_279_071
     assert sum(n for (a, _), n in orbits.items() if a <= 4) == 68_071
+    # Translations preserve h, so the representative's class is the class of every row.
+    dem = dem_at(1e-3)
+    l = dem.l.toarray()
+    for f in files:
+        induced = induced_classes(dem.h, f.orbits.orbits.sets)
+        assert set(induced.b.tolist()) == {f.orbits.b}, (f.orbits.a, f.orbits.b)
+        assert induced.max_check_degree.max() <= 2, (f.orbits.a, f.orbits.b)
+        if f.orbits.b == 0:
+            assert not np.any(l[:, f.orbits.orbits.sets].sum(axis=2) % 2), f.orbits.a
     sizes = {key: f.orbits.orbits.orbit_sizes for key, f in zip(orbits, files, strict=True)}
     assert int(np.count_nonzero(sizes[(4, 4)] == 36)) == 85
     assert all(set(s.tolist()) == {72} for key, s in sizes.items() if key != (4, 4))
     assert sum(f.orbits.rows for f in files) == 92_088_579
+    # Table I of arXiv:2608.11516. The paper also counts the unterminated last line of four
+    # files, where our complete rows are one fewer; the other four unterminated lines, in
+    # (4,0), (5,0), (5,3) and (5,5), it does not count.
+    table_i = {
+        (2, 2): 5040, (2, 3): 6048, (2, 4): 6693, (2, 5): 9360,
+        (3, 0): 8640, (3, 2): 20918, (3, 3): 53826, (3, 4): 62649, (3, 5): 88056,
+        (4, 0): 39995, (4, 2): 176256, (4, 3): 524088, (4, 4): 1398780, (4, 5): 2496600,
+        (5, 0): 194457, (5, 2): 1257912, (5, 3): 6824502, (5, 4): 22244970, (5, 5): 56669793,
+    }  # fmt: skip
+    assert sum(table_i.values()) == 92_088_583
+    counted_by_paper = {(3, 2), (3, 3), (3, 4), (5, 4)}
+    for key, f in zip(orbits, files, strict=True):
+        offset = int(key in counted_by_paper)
+        assert f.orbits.rows == table_i[key] - offset, key
+        if offset:
+            assert f.dropped_lines == 1, key
     assert sum(f.orbits.missing for f in files) == 1_473
     assert len(supports.lists[3].sets) == 2_515_853
     assert len(supports.lists[4].sets) == 3_702_251

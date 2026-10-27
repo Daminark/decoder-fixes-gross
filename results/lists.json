@@ -21,7 +21,7 @@
     "a_5_b_4.csv": "33ca806b0c23373935991b062bd9c24f7fedf4f62db43b6100162ecdc61d5657",
     "a_5_b_5.csv": "228019ecafdf1fc6044d039edb65edc932c2ae164739f0b31105d9b55ddcbe59"
   },
-  "commit": "b787591",
+  "commit": "9203784",
   "package_versions": {
     "numpy": "2.5.4",
     "scipy": "1.18.1",
@@ -162,6 +162,11 @@
       "orbits_of_size_36": 0
     }
   },
+  "class_check": {
+    "rule": "(a, b) recomputed from h and every induced check degree at most 2, on every orbit representative",
+    "representatives": 1279071,
+    "outside_class": 0
+  },
   "totals": {
     "rows": 92088579,
     "missing": 1473,
@@ -194,5 +199,5 @@
     }
   },
   "lets_content_hash": "d869513f9802313ded7d12ffbf6d68059c0114bfd76843072cccba9095521efb",
-  "seconds": 421
+  "seconds": 483
 }

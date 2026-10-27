@@ -69,10 +69,14 @@ def main() -> None:
 
     # Translations preserve h, so checking each representative checks every row of its orbit.
     h = dem_at(1e-3).h
+    outside = {}
     for c in classes:
         induced = induced_classes(h, c.orbits.sets)
-        if np.any(induced.b != c.b) or np.any(induced.max_check_degree > 2):
-            raise SystemExit(f"class ({c.a}, {c.b}) has a representative outside its class")
+        outside[f"a{c.a}_b{c.b}"] = int(
+            np.count_nonzero((induced.b != c.b) | (induced.max_check_degree > 2))
+        )
+    if any(outside.values()):
+        raise SystemExit(f"representatives outside their file's class: {outside}")
     logger.info("every representative has its file's class and is elementary")
 
     supports = build_supports(classes)
@@ -98,6 +102,12 @@ def main() -> None:
         "commit": commit_hash(),
         "package_versions": {name: version(name) for name in ("numpy", "scipy", "stim")},
         "classes": per_class,
+        "class_check": {
+            "rule": "(a, b) recomputed from h and every induced check degree at most 2, "
+            "on every orbit representative",
+            "representatives": sum(len(c.orbits.sets) for c in classes),
+            "outside_class": 0,
+        },
         "totals": {
             "rows": sum(c.rows for c in classes),
             "missing": sum(c.missing for c in classes),
