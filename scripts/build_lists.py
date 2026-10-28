@@ -13,7 +13,6 @@ core. Usage: ``uv run python scripts/build_lists.py``.
 import hashlib
 import json
 import logging
-import subprocess
 import time
 from importlib.metadata import version
 from pathlib import Path
@@ -22,6 +21,7 @@ import numpy as np
 
 from decoder_fixes_gross.dem import dem_at
 from decoder_fixes_gross.lets import LetsList, build_supports, induced_classes, read_lets_files
+from decoder_fixes_gross.runs import commit_hash
 
 ROOT = Path(__file__).resolve().parent.parent
 LETS_DIR = ROOT / "data" / "lets" / "ets_supports_full_detector_algorithm1_full_parallel"
@@ -29,14 +29,6 @@ LISTS_DIR = ROOT / "data" / "lists"
 OUT = ROOT / "results" / "lists.json"
 ZENODO_RECORD = 21878685
 logger = logging.getLogger(__name__)
-
-
-def commit_hash() -> str:
-    """Return the short hash of HEAD, or "unknown" outside a git checkout."""
-    result = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=False
-    )
-    return result.stdout.strip() or "unknown"
 
 
 def verified_checksums(directory: Path) -> dict[str, str]:
@@ -99,7 +91,7 @@ def main() -> None:
     record = {
         "zenodo_record": ZENODO_RECORD,
         "input_sha256": checksums,
-        "commit": commit_hash(),
+        "commit": commit_hash(ROOT),
         "package_versions": {name: version(name) for name in ("numpy", "scipy", "stim")},
         "classes": per_class,
         "class_check": {
