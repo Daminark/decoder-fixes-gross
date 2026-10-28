@@ -2,7 +2,7 @@
 
 [![ci](https://github.com/Daminark/decoder-fixes-gross/actions/workflows/ci.yml/badge.svg)](https://github.com/Daminark/decoder-fixes-gross/actions/workflows/ci.yml)
 [![Project Status: WIP](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
-![Python](https://img.shields.io/badge/python-3.11%2B-blue)
+![Python](https://img.shields.io/badge/python-3.13%2B-blue)
 
 Comparing decoder fixes for sub-distance failures on the Gross code
 
