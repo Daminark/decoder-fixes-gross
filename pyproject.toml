@@ -111,7 +111,7 @@ module = ["stim"]
 follow_untyped_imports = true
 
 [[tool.mypy.overrides]]
-# relay-bp is a compiled extension with no type information.
+# The relay-bp class used comes from a compiled module with no stubs.
 module = ["relay_bp"]
 ignore_missing_imports = true
 

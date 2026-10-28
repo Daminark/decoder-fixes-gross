@@ -5,6 +5,8 @@ the Zenodo trapping-set dataset (record 21878685, CC-BY-4.0), as column indices 
 gross-code model padded with -1 (``sets``), in four file groups (``group``), with their
 outcome codes under relay-bp 0.2.2 (``outcome_0_2_2``). That run used the baseline
 settings with seed 0 and a fresh decoder per file group, decoding each group in file order.
+The sets are an arbitrary fixed selection, two of them repeated; they exist so that both
+versions decode the same input in the same order, not to estimate a failure rate.
 
 The check repeats that procedure with the installed relay-bp. The pin stands if the
 weight-4 sets of group 0 (355 sets, 1 failure under 0.2.2) fail at most 4 times and the
