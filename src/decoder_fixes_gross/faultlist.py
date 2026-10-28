@@ -1,6 +1,7 @@
 """Lists of fault-set orbits, the format shared by the list builders and the decoding runs."""
 
 import hashlib
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Self
@@ -86,12 +87,21 @@ class FaultList:
 
         Equal contents give equal digests on every platform and in every session.
         """
-        digest = hashlib.sha256()
-        for name, array in (("sets", self.sets), ("orbit_sizes", self.orbit_sizes)):
-            little = np.ascontiguousarray(array, dtype=array.dtype.newbyteorder("<"))
-            digest.update(f"{name}:{little.dtype.str}:{little.shape};".encode())
-            digest.update(little.tobytes())
-        return digest.hexdigest()
+        return hash_arrays([("sets", self.sets), ("orbit_sizes", self.orbit_sizes)])
+
+
+def hash_arrays(named: Iterable[tuple[str, NDArray[np.generic]]]) -> str:
+    """Return the sha256 hex digest of the names, dtypes, shapes and bytes of named arrays.
+
+    Each array is hashed in little-endian byte order after its name, dtype and shape, in the
+    order given, so equal contents give equal digests on every platform and in every session.
+    """
+    digest = hashlib.sha256()
+    for name, array in named:
+        little = np.ascontiguousarray(array, dtype=array.dtype.newbyteorder("<"))
+        digest.update(f"{name}:{little.dtype.str}:{little.shape};".encode())
+        digest.update(little.tobytes())
+    return digest.hexdigest()
 
 
 def _rows_strictly_increasing(sets: NDArray[np.int32]) -> bool:
