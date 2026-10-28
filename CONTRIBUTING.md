@@ -27,6 +27,7 @@ uv run pre-commit install
 - Files shipped as package data carry a provenance file next to them recording how they were produced.
 - A test that needs data under `data/` carries the `slow` marker and skips with a stated reason when the data is absent.
 - Large inputs and raw outputs go in `data/`, which is not committed; `data/README.md` records the source or the command that regenerates each. Fixtures that tests need are small and live in `tests/data/`.
+- Per-support outcomes of decoding runs live in `data/runs/` and are never committed; what `results/` holds about them is aggregates, each naming the hashes of its inputs.
 - Every figure in the documentation is rendered at build time from `results/`, which one command regenerates; see the how-to page on reproducing figures.
 - Commit messages: an imperative subject line, a blank line, then a body saying why.
 - Work happens on a branch and lands on `main` through a pull request.
