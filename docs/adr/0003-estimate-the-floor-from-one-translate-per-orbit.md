@@ -6,6 +6,8 @@ Date: 2026-10-23
 
 Accepted
 
+Which probability of a support the estimate sums is set by [ADR 0005](0005-report-the-floor-as-an-occurrence-probability.md); the estimator and its error below apply to either form.
+
 ## Context
 
 The trapping-set paper (Pacenti, Raveendran and Vasić, arXiv:2608.11516, Section IV) estimates a lower bound on a decoder's logical failure rate as a sum over fault supports.

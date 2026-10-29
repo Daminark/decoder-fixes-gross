@@ -12,7 +12,7 @@ uv run pre-commit install
 - `uv run nox` runs lint, type check, and fast tests.
 - `uv run nox -s tests_full` runs every test, including slow ones, with coverage.
 - `uv run nox -s docs` builds the documentation site; notebooks execute during the build.
-- `uv run nox -s figures` regenerates the cached results in `results/`, which the docs build renders into figures.
+- `uv run nox -s figures` regenerates the aggregates in `results/` from the runs listed in `scripts/runs.toml`; the docs build renders figures from them.
 - `uv run nox -s review` runs sp-repo-review.
 
 ## Conventions
