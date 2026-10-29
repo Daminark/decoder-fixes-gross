@@ -21,7 +21,6 @@ import dataclasses
 import hashlib
 import json
 import logging
-import subprocess
 from importlib.metadata import version
 from pathlib import Path
 
@@ -30,6 +29,7 @@ import numpy as np
 from decoder_fixes_gross.decoders import RELAY_BP_BASELINE, RelayBP
 from decoder_fixes_gross.dem import dem_at
 from decoder_fixes_gross.inject import decode_injected
+from decoder_fixes_gross.runs import commit_hash
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLE = ROOT / "tests" / "data" / "relay_version_sample.npz"
@@ -40,14 +40,6 @@ SEED = 0
 MAX_WEIGHT_4_FAILURES = 4
 WEIGHT_5_FAILURE_RANGE = (4, 22)
 logger = logging.getLogger(__name__)
-
-
-def commit_hash() -> str:
-    """Return the short hash of HEAD, or "unknown" outside a git checkout."""
-    result = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, check=False
-    )
-    return result.stdout.strip() or "unknown"
 
 
 def decode_sample(sets: np.ndarray, group: np.ndarray) -> np.ndarray:
@@ -96,7 +88,7 @@ def main() -> None:
         "p": P,
         "seed": SEED,
         "sample_sha256": hashlib.sha256(SAMPLE.read_bytes()).hexdigest(),
-        "commit": commit_hash(),
+        "commit": commit_hash(ROOT),
         "weight_4_group_0": {
             "sets": int(np.count_nonzero(weight_4)),
             "failures_installed": n_4,
