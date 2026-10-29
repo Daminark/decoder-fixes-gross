@@ -36,7 +36,7 @@ The run directory `data/runs/relay-bp-baseline/` receives `config.json` first an
 
 By default there is one worker per physical core, 8 on a Ryzen 7 9800X3D.
 The decoders are single-threaded, and a busy hyperthread sibling slows the decode it shares a core with, which adds noise to the per-orbit decode times.
-`--workers 16` buys perhaps 20 to 30% more throughput at the price of noisier times.
+`--workers 16` likely buys more throughput (not measured here), at the price of noisier times.
 
 For the Relay-BP baseline, expect roughly 2 to 4 hours on 8 workers.
 Weight-2 supports decode at about 0.5 ms each, and the cost is dominated by the rare decodes that never converge, each of which runs all 18,080 iterations in 6 to 7 s.

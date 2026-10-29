@@ -300,7 +300,8 @@ class RunConfig:
         Raises
         ------
         ValueError
-            If a field is missing or fails the checks of the class.
+            If a field, at the top level or in a list record, is missing, or a field fails
+            the checks of the class.
         """
         record = json.loads((run_dir / CONFIG_NAME).read_text(encoding="utf-8"))
         try:
@@ -310,7 +311,15 @@ class RunConfig:
                 p0=record["p0"],
                 run_seed=record["run_seed"],
                 shard_size=record["shard_size"],
-                lists=tuple(ListRecord(**list_record) for list_record in record["lists"]),
+                lists=tuple(
+                    ListRecord(
+                        name=list_record["name"],
+                        content_hash=list_record["content_hash"],
+                        n_orbits=list_record["n_orbits"],
+                        weight=list_record["weight"],
+                    )
+                    for list_record in record["lists"]
+                ),
                 versions=record["versions"],
                 commit=record["commit"],
             )

@@ -161,6 +161,14 @@ def test_config_load_names_a_missing_field(tmp_path: Path) -> None:
         RunConfig.load(tmp_path)
 
 
+def test_config_load_names_a_missing_list_record_field(tmp_path: Path) -> None:
+    record = _config().to_json()
+    del record["lists"][1]["weight"]
+    (tmp_path / CONFIG_NAME).write_text(json.dumps(record))
+    with pytest.raises(ValueError, match="weight"):
+        RunConfig.load(tmp_path)
+
+
 @pytest.mark.parametrize(
     ("changes", "match"),
     [

@@ -133,7 +133,9 @@ def test_outcomes_iterations_and_times_land_at_their_orbits(
 ) -> None:
     def rule(name: str, row: int, seed: int, calls: int) -> tuple[bool, int | None]:
         if name == "singles" and row == 3:
-            time.sleep(0.005)
+            # A double decodes in microseconds; 50 ms keeps a stall on a busy runner far
+            # from the threshold.
+            time.sleep(0.05)
         # Correct on even rows; iterations name the orbit on the singles, none on the pairs.
         return row % 2 == 0, (10 * row + 1 if name == "singles" else None)
 
@@ -141,7 +143,7 @@ def test_outcomes_iterations_and_times_land_at_their_orbits(
     shards = _shards(tmp_path / "run")
     assert [s.outcomes.tolist() for s in shards] == [[0, 2], [0, 2], [0], [0, 2], [0]]
     assert [s.iterations.tolist() for s in shards] == [[1, 11], [21, 31], [41], [-1, -1], [-1]]
-    slow = [(s.micros >= 5000).tolist() for s in shards]
+    slow = [(s.micros >= 50_000).tolist() for s in shards]
     assert slow == [[False, False], [False, True], [False], [False, False], [False]]
 
 
