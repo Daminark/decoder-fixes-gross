@@ -103,6 +103,13 @@ def test_another_largest_class_is_inconclusive() -> None:
     assert gate["conditions"]["largest_class"]["found"] == ["a5_b5"]
 
 
+def test_tie_for_the_largest_class_is_inconclusive() -> None:
+    gate = evaluate(_record(published=BASELINE | {"a5_b5": 68_110}, total=143_350))
+    assert gate["verdict"] == "inconclusive"
+    assert sorted(gate["conditions"]["largest_class"]["found"]) == ["a5_b3", "a5_b5"]
+    assert not gate["conditions"]["largest_class"]["holds"]
+
+
 def test_a_paper_class_without_failures_is_inconclusive() -> None:
     gate = evaluate(_record(published=BASELINE | {"a4_b5": 0}, total=143_350))
     assert gate["verdict"] == "inconclusive"
