@@ -35,6 +35,7 @@ uv run nox -s figures
 ```
 
 This writes `results/floor_<run_id>.json` for each listed run and `results/ceiling.json`.
+The `[gate]` table of `scripts/runs.toml` names the Relay-BP baseline run that is compared with the trapping-set paper, and the command writes that comparison to `results/gate_relay_bp.json`.
 Each file names the hashes of its inputs (the run's files, the lists and the trapping-set file) and the commit of the code that wrote it.
 The command stops if a run is incomplete, if its configuration names another decoder or other lists than its entry, if a list in `data/lists/` differs from the one the run decoded, or if `lets.npz`, `u3.npz` or `u4.npz` differs from the build recorded in `results/lists.json`; in the last case, rebuild the lists as in stage one.
 [The floor estimate](../explanation/floor-estimate.md) explains what these files hold.

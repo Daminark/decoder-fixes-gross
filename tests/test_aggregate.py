@@ -396,6 +396,19 @@ def test_aggregation_command_refuses_a_run_that_differs_from_the_registry(
         _script_main()(_data_dir(tmp_path, ["u1", "u3"]))
 
 
+@pytest.mark.parametrize("gate_run", ["unregistered", "small"])
+def test_aggregation_command_refuses_a_gate_without_a_registered_relay_bp_run(
+    tmp_path: Path, gate_run: str
+) -> None:
+    # "small" is registered, but with the test double rather than the Relay-BP baseline.
+    arguments = _data_dir(tmp_path, ["u1", "u3", "u4"])
+    with (tmp_path / "runs.toml").open("a") as registry:
+        registry.write(f'[gate]\nrun = "{gate_run}"\n')
+    with pytest.raises(SystemExit, match=f"gate reads run {gate_run}, .* relay-bp-baseline"):
+        _script_main()(arguments)
+    assert not (tmp_path / "results" / "floor_small.json").exists()
+
+
 def test_aggregation_command_refuses_a_lets_file_not_from_the_recorded_build(
     tmp_path: Path,
 ) -> None:

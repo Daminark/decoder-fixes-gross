@@ -4,8 +4,11 @@ For each registered run, reads ``<data>/runs/<id>/`` and the lists it decoded fr
 ``<data>/lists/``, with ``<data>/lists/lets.npz`` for the LETS incidence, and writes
 ``<results>/floor_<id>.json``: failures by list, weight, outcome and LETS class, the floor at
 every p of the two grids below, and the decode cost. ``<results>/ceiling.json`` holds the
-mass of every list the runs use, at the same p. Each file records the hashes of its inputs
-and the commit of this code. Takes seconds.
+mass of every list the runs use, at the same p. When the registry has a ``[gate]`` table, the
+run it names, which must be registered with the Relay-BP baseline decoder, is evaluated against
+the trapping-set paper and ``<results>/gate_relay_bp.json`` is written
+(:func:`decoder_fixes_gross.gate.evaluate`). Each file records the hashes of its inputs and the
+commit of this code. Takes seconds.
 
 Before computing anything, the command reads ``<results>/lists.json``, the record of the build
 that wrote ``u3``, ``u4`` and ``lets.npz`` together, and refuses to run unless the LETS file and
@@ -32,6 +35,7 @@ import numpy as np
 from decoder_fixes_gross.aggregate import ceiling, read_run, summarize
 from decoder_fixes_gross.dem import dem_at
 from decoder_fixes_gross.faultlist import FaultList
+from decoder_fixes_gross.gate import evaluate
 from decoder_fixes_gross.lets import INCIDENCE_WEIGHTS, LetsList
 from decoder_fixes_gross.runs import commit_hash
 
@@ -42,6 +46,9 @@ BUILD_RECORD = "lists.json"
 TABLE_P = [1e-4, 3e-4, 4e-4, 1e-3]
 # Rates of the floor curve: 17 points on a log scale.
 CURVE_P = np.geomspace(1e-4, 4e-3, 17).tolist()
+# The gate compares this decoder with the paper, and writes its verdict to this file.
+GATE_DECODER = "relay-bp-baseline"
+GATE_FILE = "gate_relay_bp.json"
 logger = logging.getLogger(__name__)
 
 
@@ -80,7 +87,16 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
-    registry = tomllib.loads(args.runs.read_text(encoding="utf-8"))["runs"]
+    registry_file = tomllib.loads(args.runs.read_text(encoding="utf-8"))
+    registry = registry_file["runs"]
+    gate_run = registry_file.get("gate", {}).get("run")
+    if gate_run is not None and not any(
+        entry["id"] == gate_run and entry["decoder"] == GATE_DECODER for entry in registry
+    ):
+        raise SystemExit(
+            f"the gate reads run {gate_run}, which {args.runs.name} must register with "
+            f"decoder {GATE_DECODER}"
+        )
     names = list(dict.fromkeys(name for entry in registry for name in entry["lists"]))
     lists = {name: FaultList.load(args.data / "lists" / f"{name}.npz") for name in names}
     lets = LetsList.load(args.data / "lists" / "lets.npz")
@@ -99,6 +115,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     args.results.mkdir(exist_ok=True)
     for entry, run in zip(registry, runs, strict=True):
         run_lists = {name: lists[name] for name in entry["lists"]}
+        summary = summarize(run, run_lists, lets, priors_by_p)
         record = {
             "run_id": entry["id"],
             "decoder": run.config.decoder,
@@ -106,10 +123,15 @@ def main(argv: Sequence[str] | None = None) -> None:
             "run_seed": run.config.run_seed,
             "run_commit": run.config.commit,
         } | provenance
-        write(
-            args.results / f"floor_{entry['id']}.json",
-            record | summarize(run, run_lists, lets, priors_by_p),
-        )
+        floor_name = f"floor_{entry['id']}.json"
+        write(args.results / floor_name, record | summary)
+        if entry["id"] == gate_run:
+            gate = {
+                "run_id": gate_run,
+                "commit": provenance["commit"],
+                "inputs": {"floor": floor_name, "run_digest": summary["inputs"]["run_digest"]},
+            }
+            write(args.results / GATE_FILE, gate | evaluate(summary))
     write(
         args.results / "ceiling.json",
         provenance
