@@ -160,9 +160,34 @@ def test_per_round_of_zero_is_zero() -> None:
 def test_estimate_converts_value_and_both_error_ends_per_round() -> None:
     result = Estimate(value=4e-9, error=3.1622776601683795e-9)
     # Each end divided by 12; the second-order terms are below 1e-18.
-    np.testing.assert_allclose(
-        result.per_round(), [3.3333333e-10, 6.9810195e-11, 5.9685647e-10], rtol=1e-7
+    assert result.per_round() == pytest.approx(
+        (3.3333333e-10, 6.9810195e-11, 5.9685647e-10), rel=1e-7
     )
+
+
+@pytest.mark.parametrize(("value", "error"), [(1e-9, 2e-9), (-1e-9, -2e-9)])
+def test_estimate_rejects_an_error_outside_zero_to_value(value: float, error: float) -> None:
+    with pytest.raises(ValueError, match=rf"value {value} and error {error}"):
+        Estimate(value=value, error=error)
+
+
+def test_estimate_per_round_is_none_where_an_end_reaches_one() -> None:
+    value, low, high = Estimate(value=0.9, error=0.2).per_round()
+    # 1 - 0.1**(1/12) and 1 - 0.3**(1/12); the high end 1.1 has no per-round rate.
+    assert (value, low) == pytest.approx((0.1745958, 0.0954621), abs=1e-6)
+    assert high is None
+
+
+def test_estimate_per_round_is_none_at_exactly_one() -> None:
+    # 0.8 + 0.2 is exactly 1.0 in float64.
+    value, low, high = Estimate(value=0.8, error=0.2).per_round()
+    assert value is not None
+    assert low is not None
+    assert high is None
+
+
+def test_estimate_per_round_above_one_is_all_none() -> None:
+    assert Estimate(value=1.5, error=0.2).per_round() == (None, None, None)
 
 
 @pytest.mark.parametrize(("probability", "rounds"), [(-0.1, 12), (1.0, 12), (0.1, 0)])

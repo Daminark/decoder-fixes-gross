@@ -55,6 +55,17 @@ class RunOutcomes:
 def read_run(run_dir: Path) -> RunOutcomes:
     """Read a complete run.
 
+    Parameters
+    ----------
+    run_dir : pathlib.Path
+        A run directory written by :func:`~decoder_fixes_gross.tier1.run`, with
+        ``config.json`` and every shard its configuration lists.
+
+    Returns
+    -------
+    RunOutcomes
+        Per list, one entry per orbit in list order, and the digest of the files read.
+
     Raises
     ------
     ValueError
@@ -149,7 +160,10 @@ def summarize(
         ``floor``: per p in increasing order and, under ``occurrence`` and ``exact_event``, for
         each form of :func:`~decoder_fixes_gross.floor.log_probabilities`: the floor per
         experiment with its error, the per-round value and the per-round ends of value -+
-        error, and the floor of each list.
+        error, and the floor of each list. ``per_round.value``, ``low`` and ``high`` are
+        float or None: None where the quantity converted is 1 or more
+        (:meth:`~decoder_fixes_gross.floor.Estimate.per_round`), while ``value`` and ``error``
+        are always floats and may exceed 1 in the occurrence form.
         ``cost``: mean, median and 99th percentile of the decode time in microseconds and of
         the iteration count over every orbit, or None for iterations when the decoder reports
         none.
@@ -193,6 +207,13 @@ def ceiling(
     lists: Mapping[str, FaultList], priors_by_p: Mapping[float, NDArray[np.float64]]
 ) -> list[dict[str, Any]]:
     """Return, per p in increasing order, the total mass of each list: the floor if every orbit failed.
+
+    Parameters
+    ----------
+    lists : Mapping of str to FaultList
+        The lists, by name.
+    priors_by_p : Mapping of float to numpy.ndarray
+        As for :func:`summarize`, the priors of the model at each physical error rate p.
 
     Returns
     -------

@@ -122,17 +122,43 @@ class Estimate:
         Sum of the masses of the failing orbits.
     error : float
         Square root of the sum of their squared masses; never above ``value``.
+
+    Raises
+    ------
+    ValueError
+        If ``error`` is not in [0, ``value``].
     """
 
     value: float
     error: float
 
-    def per_round(self) -> tuple[float, float, float]:
-        """Return the value and the two ends of value -+ error, each converted by `per_round`."""
+    def __post_init__(self) -> None:
+        """Check that the error is in [0, value]."""
+        # No tolerance: estimate() cannot produce error > value by rounding, since a single
+        # term gives sqrt(fl(m * m)) == m exactly in binary round-to-nearest.
+        if not 0 <= self.error <= self.value:
+            raise ValueError(
+                f"error must be in [0, value], got value {self.value} and error {self.error}"
+            )
+
+    def per_round(self) -> tuple[float | None, float | None, float | None]:
+        """Return the value and the two ends of value -+ error, each converted by `per_round`.
+
+        Returns
+        -------
+        tuple of float or None
+            The per-round value, low end and high end. Each is None when the quantity it
+            converts is 1 or more, where the per-round rate is undefined; an occurrence floor
+            (ADR 0005) is not a probability and can reach 1.
+        """
+
+        def converted(end: float) -> float | None:
+            return None if end >= 1 else per_round(end)
+
         return (
-            per_round(self.value),
-            per_round(self.value - self.error),
-            per_round(self.value + self.error),
+            converted(self.value),
+            converted(self.value - self.error),
+            converted(self.value + self.error),
         )
 
 

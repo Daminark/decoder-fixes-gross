@@ -117,5 +117,7 @@ p_L = 1 - (1 - \hat P)^{1/12}.
 For an estimate far below one, the direct formula loses most of its digits to cancellation, since 1 - P̂ rounds away the low digits of P̂; we evaluate it as -expm1(log1p(-P̂) / 12).
 The conversion is not linear, so we convert the two ends of the band P̂ - σ and P̂ + σ separately rather than converting σ.
 Both forms of the floor are converted the same way.
+The occurrence floor is not a probability, since its events overlap, so for a decoder that fails often it can reach 1 at the top of the p grid.
+The per-round rate is undefined there, and the record stores null for each of the value and the two ends that reaches 1, while the per-experiment value and error are still written and may exceed 1.
 
 The numbers themselves are written by the aggregation command to `results/`, one file per run and one for the ceiling; [reproducing the figures](../howto/reproduce-figures.md) lists the commands.

@@ -123,6 +123,20 @@ def test_read_run_refuses_an_incomplete_run(tmp_path: Path) -> None:
         read_run(tmp_path / "run")
 
 
+def test_read_run_refuses_a_shard_of_the_wrong_length(tmp_path: Path) -> None:
+    _write_run(tmp_path / "run")
+    one_row = Shard(
+        0,
+        np.zeros(1, np.uint8),
+        np.zeros(1, np.uint8),
+        np.zeros(1, np.uint32),
+        np.zeros(1, np.int32),
+    )
+    one_row.save(tmp_path / "run" / shard_name(0))
+    with pytest.raises(ValueError, match="holds 1 orbits, but covers rows 0 to 2"):
+        read_run(tmp_path / "run")
+
+
 def test_run_digest_changes_with_a_shard(tmp_path: Path) -> None:
     _write_run(tmp_path / "run")
     before = read_run(tmp_path / "run").digest
@@ -219,6 +233,22 @@ def test_floor_and_error_from_hand_worked_probabilities(
         [1 - (1 - v) ** (1 / 12) for v in (value, value - error, value + error)],
         rtol=1e-8,
     )
+
+
+def test_per_round_end_reaching_one_is_null(tmp_path: Path) -> None:
+    _write_run(tmp_path / "run")
+    record = summarize(read_run(tmp_path / "run"), LISTS, _lets(), {1e-3: np.full(10, 0.2)})
+    entry = record["floor"][0]["occurrence"]
+    # Occurrence terms 72 x 0.008, 36 x 0.008 and 36 x 0.0016: value 0.9216 and error
+    # sqrt(0.41803776) = 0.6465584, so the high end 1.568 has no per-round rate, while the
+    # value and the low end 0.2750416 do.
+    np.testing.assert_allclose([entry["value"], entry["error"]], [0.9216, 0.6465584], atol=1e-7)
+    np.testing.assert_allclose(
+        [entry["per_round"]["value"], entry["per_round"]["low"]],
+        [1 - 0.0784 ** (1 / 12), 1 - 0.7249584 ** (1 / 12)],
+        rtol=1e-6,
+    )
+    assert entry["per_round"]["high"] is None
 
 
 def test_cost_statistics_over_every_orbit(record: dict[str, Any]) -> None:
