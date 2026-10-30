@@ -332,12 +332,23 @@ def _script_main() -> Callable[[list[str]], None]:
     return main
 
 
-def _data_dir(tmp_path: Path, registered_lists: list[str]) -> list[str]:
-    """Write lists, LETS, one run and a registry under ``tmp_path``; return the CLI arguments."""
+def _data_dir(
+    tmp_path: Path, registered_lists: list[str], lets_hash: str | None = None
+) -> list[str]:
+    """Write lists, LETS, their build record, one run and a registry; return the CLI arguments.
+
+    The build record holds the true hashes, except ``lets_hash`` for the LETS file if given.
+    """
     (tmp_path / "lists").mkdir()
     for name, fl in LISTS.items():
         fl.save(tmp_path / "lists" / f"{name}.npz")
     _lets().save(tmp_path / "lists" / "lets.npz")
+    (tmp_path / "results").mkdir()
+    build = {
+        "lists": {name: {"content_hash": fl.content_hash()} for name, fl in LISTS.items()},
+        "lets_content_hash": lets_hash or _lets().content_hash(),
+    }
+    (tmp_path / "results" / "lists.json").write_text(json.dumps(build))
     (tmp_path / "runs").mkdir()
     _write_run(tmp_path / "runs" / "small")
     registry = tmp_path / "runs.toml"
@@ -352,7 +363,11 @@ def test_aggregation_command_writes_floor_and_ceiling_with_input_hashes(tmp_path
     # Slow: the model is built at each of the 21 rates, about 2.5 s.
     _script_main()(_data_dir(tmp_path, ["u1", "u3", "u4"]))
     results = tmp_path / "results"
-    assert sorted(p.name for p in results.iterdir()) == ["ceiling.json", "floor_small.json"]
+    assert sorted(p.name for p in results.iterdir()) == [
+        "ceiling.json",
+        "floor_small.json",
+        "lists.json",
+    ]
     hashes = {name: fl.content_hash() for name, fl in LISTS.items()}
 
     floor = json.loads((results / "floor_small.json").read_text())
@@ -379,3 +394,19 @@ def test_aggregation_command_refuses_a_run_that_differs_from_the_registry(
 ) -> None:
     with pytest.raises(SystemExit, match="registers double on"):
         _script_main()(_data_dir(tmp_path, ["u1", "u3"]))
+
+
+def test_aggregation_command_refuses_a_lets_file_not_from_the_recorded_build(
+    tmp_path: Path,
+) -> None:
+    with pytest.raises(
+        SystemExit, match=r"lets\.npz has hash .* but .* records 0{64} .*build_lists"
+    ):
+        _script_main()(_data_dir(tmp_path, ["u1", "u3", "u4"], lets_hash="0" * 64))
+
+
+def test_aggregation_command_refuses_a_missing_build_record(tmp_path: Path) -> None:
+    arguments = _data_dir(tmp_path, ["u1", "u3", "u4"])
+    (tmp_path / "results" / "lists.json").unlink()
+    with pytest.raises(SystemExit, match=r"lists\.json is missing; .*build_lists"):
+        _script_main()(arguments)

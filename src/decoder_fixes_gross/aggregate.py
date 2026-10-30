@@ -145,7 +145,8 @@ def summarize(
     lists : Mapping of str to FaultList
         Every list of the run, by name.
     lets : LetsList
-        The LETS, with incidence into the run's ``u3`` and ``u4``.
+        The LETS, whose incidence holds row indices into the ``u3`` and ``u4`` of ``lists``;
+        a precondition this function cannot check.
     priors_by_p : Mapping of float to numpy.ndarray
         The priors of the model at each physical error rate p at which to evaluate the floor.
 

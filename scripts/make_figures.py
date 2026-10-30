@@ -7,6 +7,11 @@ every p of the two grids below, and the decode cost. ``<results>/ceiling.json`` 
 mass of every list the runs use, at the same p. Each file records the hashes of its inputs
 and the commit of this code. Takes seconds.
 
+Before computing anything, the command reads ``<results>/lists.json``, the record of the build
+that wrote ``u3``, ``u4`` and ``lets.npz`` together, and refuses to run unless the LETS file and
+the ``u3`` and ``u4`` it loaded have the hashes recorded there, since the LETS incidence holds
+row indices into those two lists. It never writes ``lists.json``.
+
 Two records in results/ come from their own one-off commands and are not regenerated here:
 ``lists.json``, by ``scripts/build_lists.py`` from the Zenodo files (about 7 minutes), and
 ``relay_version_check.json``, by ``scripts/check_relay_version.py`` (about a minute).
@@ -27,10 +32,12 @@ import numpy as np
 from decoder_fixes_gross.aggregate import ceiling, read_run, summarize
 from decoder_fixes_gross.dem import dem_at
 from decoder_fixes_gross.faultlist import FaultList
-from decoder_fixes_gross.lets import LetsList
+from decoder_fixes_gross.lets import INCIDENCE_WEIGHTS, LetsList
 from decoder_fixes_gross.runs import commit_hash
 
 ROOT = Path(__file__).resolve().parent.parent
+# Record of the build of the lists and the LETS file, read from the results directory.
+BUILD_RECORD = "lists.json"
 # Rates of the tables; 4e-4 and 1e-3 are where the trapping-set paper's Fig. 1 is read.
 TABLE_P = [1e-4, 3e-4, 4e-4, 1e-3]
 # Rates of the floor curve: 17 points on a log scale.
@@ -42,6 +49,26 @@ def write(path: Path, record: dict[str, Any]) -> None:
     """Write ``record`` as indented JSON."""
     path.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
     logger.info("wrote %s", path)
+
+
+def check_build(results: Path, lists: dict[str, FaultList], lets: LetsList) -> None:
+    """Exit unless ``lets`` and the lists it indexes have the hashes of the recorded build."""
+    path = results / BUILD_RECORD
+    remedy = "rebuild the lists with scripts/build_lists.py, which writes them and the record"
+    if not path.exists():
+        raise SystemExit(f"{path} is missing; {remedy}")
+    build = json.loads(path.read_text(encoding="utf-8"))
+    found = {"lets.npz": (lets.content_hash(), build["lets_content_hash"])} | {
+        f"u{w}.npz": (lists[f"u{w}"].content_hash(), build["lists"][f"u{w}"]["content_hash"])
+        for w in INCIDENCE_WEIGHTS
+        if f"u{w}" in lists
+    }
+    for name, (actual, recorded) in found.items():
+        if actual != recorded:
+            raise SystemExit(
+                f"{name} has hash {actual}, but {path} records {recorded} for the build that "
+                f"wrote the LETS incidence; {remedy}"
+            )
 
 
 def main(argv: Sequence[str] | None = None) -> None:
@@ -57,6 +84,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     names = list(dict.fromkeys(name for entry in registry for name in entry["lists"]))
     lists = {name: FaultList.load(args.data / "lists" / f"{name}.npz") for name in names}
     lets = LetsList.load(args.data / "lists" / "lets.npz")
+    check_build(args.results, lists, lets)
     runs = [read_run(args.data / "runs" / entry["id"]) for entry in registry]
     for entry, run in zip(registry, runs, strict=True):
         recorded = [record.name for record in run.config.lists]

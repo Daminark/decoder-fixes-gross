@@ -36,7 +36,7 @@ uv run nox -s figures
 
 This writes `results/floor_<run_id>.json` for each listed run and `results/ceiling.json`.
 Each file names the hashes of its inputs (the run's files, the lists and the trapping-set file) and the commit of the code that wrote it.
-The command stops if a run is incomplete, if its configuration names another decoder or other lists than its entry, or if a list in `data/lists/` differs from the one the run decoded.
+The command stops if a run is incomplete, if its configuration names another decoder or other lists than its entry, if a list in `data/lists/` differs from the one the run decoded, or if `lets.npz`, `u3.npz` or `u4.npz` differs from the build recorded in `results/lists.json`; in the last case, rebuild the lists as in stage one.
 [The floor estimate](../explanation/floor-estimate.md) explains what these files hold.
 
 Run it from a clean checkout, so that the recorded commit carries no `-dirty` marker.
