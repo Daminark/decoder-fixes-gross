@@ -1,6 +1,6 @@
 {
   "run_id": "relay-bp-baseline",
-  "commit": "bb8e9d7b8f3875b923ba8218e03811289abd4c90",
+  "commit": "bb822fdc6eefcb46d449909c6ec499f0376da7f0",
   "inputs": {
     "floor": "floor_relay-bp-baseline.json",
     "run_digest": "715aeed683a76963d72af415f5663864b429617917c0b198b9c50d1c3cca59a4"
@@ -34,6 +34,7 @@
     "total": {
       "found": 143350,
       "paper": 152857,
+      "shortfall": 9507,
       "deviation": -0.06219538522933199,
       "holds": true
     },
@@ -49,60 +50,70 @@
       "published": 0,
       "closed": 0,
       "paper": 0,
+      "shortfall": 0,
       "ratio": null
     },
     "a4_b2": {
       "published": 0,
       "closed": 0,
       "paper": 0,
+      "shortfall": 0,
       "ratio": null
     },
     "a4_b3": {
       "published": 0,
       "closed": 0,
       "paper": 0,
+      "shortfall": 0,
       "ratio": null
     },
     "a4_b4": {
       "published": 23328,
       "closed": 23328,
       "paper": 23751,
+      "shortfall": 423,
       "ratio": 0.9821902235695339
     },
     "a4_b5": {
       "published": 1152,
       "closed": 1152,
       "paper": 1425,
+      "shortfall": 273,
       "ratio": 0.8084210526315789
     },
     "a5_b0": {
       "published": 0,
       "closed": 0,
       "paper": 0,
+      "shortfall": 0,
       "ratio": null
     },
     "a5_b2": {
       "published": 0,
       "closed": 0,
       "paper": 0,
+      "shortfall": 0,
       "ratio": null
     },
     "a5_b3": {
       "published": 68110,
       "closed": 68112,
       "paper": 68239,
+      "shortfall": 129,
       "ratio": 0.998109585427688
     },
     "a5_b4": {
       "published": 6408,
       "closed": 6408,
       "paper": 13045,
+      "shortfall": 6637,
       "ratio": 0.49122269068608665
     },
     "a5_b5": {
       "published": 44352,
       "closed": 44352,
       "paper": 46397,
+      "shortfall": 2045,
       "ratio": 0.9559238743884303
     }
   },
