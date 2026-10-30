@@ -80,10 +80,11 @@ def evaluate(record: Mapping[str, Any]) -> dict[str, Any]:
         JSON-serializable. ``verdict``: "win", "inconclusive" or "loss". ``conditions``: per
         condition of the rule, what was found and whether it holds: ``first_failing_weight``
         (None when nothing failed), ``zero_classes`` and ``paper_classes`` (N_fail as
-        published per class), ``total`` (with the paper's total and the relative deviation)
-        and ``largest_class`` (every class with the most failing instances). ``classes``: per
-        Table II class, N_fail as published and closed, the paper's N_fail and the ratio of
-        published to paper (None where the paper's is 0). ``floor_check``: at each Fig. 1
+        published per class), ``total`` (with the paper's total, the shortfall, i.e. the paper's
+        total less ours, and the relative deviation) and ``largest_class`` (every class with the
+        most failing instances). ``classes``: per Table II class, N_fail as published and
+        closed, the paper's N_fail, the shortfall, and the ratio of published to paper (None
+        where the paper's is 0). ``floor_check``: at each Fig. 1
         point, the reading and, for both forms, the per-round floor and its ``factor`` from the
         read range, max(low / floor, floor / high, 1), None when the floor is 0 or undefined;
         the occurrence form also has the ``label`` of the check. ``rule``: the thresholds.
@@ -133,6 +134,7 @@ def evaluate(record: Mapping[str, Any]) -> dict[str, Any]:
         "total": {
             "found": total,
             "paper": PAPER_TOTAL,
+            "shortfall": PAPER_TOTAL - total,
             "deviation": deviation,
             "holds": abs(deviation) <= WIN_DEVIATION,
         },
@@ -153,6 +155,7 @@ def evaluate(record: Mapping[str, Any]) -> dict[str, Any]:
                 "published": published[c],
                 "closed": int(record["lets"][_key(c)]["closed"]),
                 "paper": n,
+                "shortfall": n - published[c],
                 "ratio": published[c] / n if n else None,
             }
             for c, n in PAPER_N_FAIL.items()

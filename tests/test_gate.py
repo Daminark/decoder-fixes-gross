@@ -56,18 +56,20 @@ def test_baseline_counts_are_a_win() -> None:
     conditions = gate["conditions"]
     assert conditions["first_failing_weight"]["found"] == 4
     assert conditions["total"]["found"] == 143_350
+    assert conditions["total"]["shortfall"] == 9_507
     # (143,350 - 152,857) / 152,857 = -9,507 / 152,857.
     assert conditions["total"]["deviation"] == pytest.approx(-0.062195, abs=1e-6)
     assert conditions["largest_class"]["found"] == ["a5_b3"]
     assert all(condition["holds"] for condition in conditions.values())
 
 
-def test_class_table_holds_published_closed_paper_and_ratio() -> None:
+def test_class_table_holds_published_closed_paper_shortfall_and_ratio() -> None:
     classes = evaluate(_record())["classes"]
     assert list(classes) == list(BASELINE)
     assert classes["a5_b4"]["published"] == 6_408
     assert classes["a5_b4"]["closed"] == 6_409
     assert classes["a5_b4"]["paper"] == 13_045
+    assert classes["a5_b4"]["shortfall"] == 6_637
     assert classes["a5_b4"]["ratio"] == pytest.approx(0.49122, abs=1e-5)
     assert classes["a4_b0"]["ratio"] is None
 
