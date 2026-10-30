@@ -81,7 +81,7 @@ for point in gate["floor_check"]:
 glue("missing_total", build["totals"]["missing"], display=False)
 glue("a5_b4_missing", build["classes"]["a5_b4"]["missing"], display=False)
 settings = floor["decoder_settings"]
-glue("legs", settings["num_sets"] + 1, display=False)
+glue("num_sets", settings["num_sets"], display=False)
 glue("pre_iter", settings["pre_iter"], display=False)
 glue("set_max_iter", settings["set_max_iter"], display=False)
 glue("gamma0", settings["gamma0"], display=False)
@@ -106,20 +106,21 @@ def classes(found):
     return ", ".join(f"{label(key)} {n:,}" for key, n in found.items())
 
 
-rows = [
-    ("First failing weight", "4 or more", f"{conditions['first_failing_weight']['found']}"),
-    ("Classes without failures in the paper", "none failing", classes(conditions["zero_classes"]["found"])),
-    ("Classes with failures in the paper", "every one failing", classes(conditions["paper_classes"]["found"])),
-    (
+rows = {
+    "first_failing_weight": ("First failing weight", "4 or more", lambda c: f"{c['found']}"),
+    "zero_classes": ("Classes without failures in the paper", "none failing", lambda c: classes(c["found"])),
+    "paper_classes": ("Classes with failures in the paper", "every one failing", lambda c: classes(c["found"])),
+    "total": (
         "Total N_fail",
         f"within {rule['win_deviation']:.0%} of {conditions['total']['paper']:,}",
-        f"{conditions['total']['found']:,} ({conditions['total']['deviation']:+.1%})",
+        lambda c: f"{c['found']:,} ({c['deviation']:+.1%})",
     ),
-    ("Largest failing class", "(5,3)", ", ".join(label(k) for k in conditions["largest_class"]["found"])),
-]
-holds = [conditions[key]["holds"] for key in conditions]
+    "largest_class": ("Largest failing class", "(5,3)", lambda c: ", ".join(label(k) for k in c["found"])),
+}
 table = ["| Condition | Required | Found | Holds |", "| --- | --- | --- | --- |"]
-table += [f"| {name} | {required} | {found} | {'yes' if ok else 'no'} |" for (name, required, found), ok in zip(rows, holds)]
+for key, condition in conditions.items():
+    name, required, found = rows[key]
+    table.append(f"| {name} | {required} | {found(condition)} | {'yes' if condition['holds'] else 'no'} |")
 Markdown("\n".join(table))
 ```
 
@@ -154,11 +155,15 @@ The class (4,5) is at {glue:text}`a4_b5_ratio:.0%`, a shortfall of {glue:text}`a
 The class (5,4) is not: we find {glue:text}`a5_b4_published:,d` failing trapping sets against the paper's {glue:text}`a5_b4_paper:,d`, i.e. {glue:text}`a5_b4_ratio:.0%` of them, and its shortfall of {glue:text}`a5_b4_shortfall:,d` is most of the total shortfall of {glue:text}`total_shortfall:,d`.
 The rule conditions on the classes only through the five zero classes and the largest one, so the verdict does not depend on this gap, but the gap is the largest disagreement with the paper that we find.
 We have not determined its cause.
-The candidates are the following, and the differences of setup listed below say more about each:
+The Table I offset and the cut data file cannot explain it: the offset is a single trapping set, and although the (5,4) file lacks {glue:text}`a5_b4_missing:,d` rows of its orbits, the paper's count and ours as published are both taken on the rows it holds, and our closed count of failing (5,4) trapping sets, {glue:text}`a5_b4_closed:,d`, equals the published one.
+The candidates that remain are the following, and the differences of setup listed below say more about each:
 
 - we decode one random translate per orbit, where the paper decodes every support once, and Relay-BP does not commute with the translations;
-- the paper's Table I counts one more trapping set in (5,4) than the complete rows of its data file;
-- the data file of (5,4) is one of those cut short in the published archive, and lacks {glue:text}`a5_b4_missing:,d` rows of its orbits.
+- the paper does not state most of its Relay-BP settings, for which we take the values of Müller et al.;
+- the paper does not name its relay-bp implementation or version;
+- the paper does not state its decoder seeds.
+
+Decoding every translate of the supports of the (5,4) trapping sets, with several decoder seeds, would test the first candidate and measure the spread due to the last; the settings and the version would need runs of their own.
 
 The paper has no failing trapping set with 2 or 3 variable nodes and omits those classes from Table II; we find none either.
 
@@ -185,6 +190,9 @@ The exact-event floor, the paper's printed Eq. (1), is {glue:text}`exact_event_4
 It peaks near p = 4e-4 and falls above it, while the figure rises, so the printed formula cannot produce Fig. 1, while the occurrence probability is consistent with it.
 Two read points do not single out the occurrence form among the forms that agree with it to a factor of 2, so which formula the authors computed remains open ([ADR 0005](../adr/0005-report-the-floor-as-an-occurrence-probability.md)).
 
+The rule as fixed before our run applied the floor check to this exact-event floor, which gives a recheck at both points.
+Once our run was aggregated, the recheck traced the gap to the printed formula, as the paragraph above explains, and the check has read the occurrence floor since ([ADR 0005](../adr/0005-report-the-floor-as-an-occurrence-probability.md)); the verdict is unaffected, since the check is informational.
+
 ## Differences from the paper's setup
 
 The verdict is reached under a setup that differs from the paper's in the following ways, each of which could move a number on this page.
@@ -204,11 +212,12 @@ The verdict is reached under a setup that differs from the paper's in the follow
 - **The Relay-BP implementation.**
   We use the relay-bp package at version 0.2.0, pinned; the paper does not name its implementation or version.
 - **Settings the paper does not state.**
-  The paper uses {glue:text}`legs:d` relay legs and stops at the first syndrome-valid estimate, which it identifies with Relay-BP-1 of Müller et al. (arXiv:2506.01779); both match our settings.
+  The paper uses 301 relay legs and stops at the first syndrome-valid estimate, which it identifies with Relay-BP-1 of Müller et al. (arXiv:2506.01779); our settings have a first leg and {glue:text}`num_sets:d` later ones, and stop the same way.
   It does not state the remaining settings, for which we take that paper's values for the gross code: {glue:text}`pre_iter:d` iterations in the first leg and {glue:text}`set_max_iter:d` in each later one, a first memory strength of {glue:text}`gamma0:.3f`, and later strengths drawn from \[{glue:text}`gamma_low:.2f`, {glue:text}`gamma_high:.2f`\].
   The paper does not state its decoder seeds either; ours are drawn from the run seed, one stream per shard of orbits.
 - **The form of the floor.**
   Our headline floor is the occurrence probability, while the paper prints the exact-event probability as its Eq. (1); the section above explains why.
 
-None of these differences changes the verdict.
-The harness reproduces the paper's Relay-BP result under the rule: the gate is a {glue:text}`verdict:s`.
+Closure and the unterminated line move the counts by a few trapping sets at most, as stated above; we have not measured the effect of the other differences.
+All of them except the form of the floor were known before our run, and the rule was not changed for any of them; the form of the floor bears only on the informational floor check.
+The verdict is therefore the rule's verdict for this setup: the harness reproduces the paper's Relay-BP result under the rule, and the gate is a {glue:text}`verdict:s`.
