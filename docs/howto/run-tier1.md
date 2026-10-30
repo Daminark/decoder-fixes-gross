@@ -31,8 +31,8 @@ Then start the run from the worktree, pointing `--data` at the main checkout's `
 mkdir -p ~/Projects/decoder-fixes-gross/data/runs && uv run python scripts/run_tier1.py --decoder relay-bp-baseline --seed SEED --run-id relay-bp-baseline --data ~/Projects/decoder-fixes-gross/data 2>&1 | tee -a ~/Projects/decoder-fixes-gross/data/runs/relay-bp-baseline.log
 ```
 
-The terminal must stay open while the run lasts: closing it ends `tee`, and the run stops at its next log line.
-To run unattended instead, detach the run from the terminal and send its output straight to the log, then follow the log as under Watch below:
+The terminal must stay open while the run lasts: closing it sends SIGHUP to the whole foreground job, Python included, and the run stops at once.
+To run unattended instead, detach the run from the terminal, so that it survives the hangup, and send its output straight to the log, then follow the log as under Watch below:
 
 ```bash
 mkdir -p ~/Projects/decoder-fixes-gross/data/runs && nohup uv run python scripts/run_tier1.py --decoder relay-bp-baseline --seed SEED --run-id relay-bp-baseline --data ~/Projects/decoder-fixes-gross/data >> ~/Projects/decoder-fixes-gross/data/runs/relay-bp-baseline.log 2>&1 &

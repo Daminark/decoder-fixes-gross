@@ -2,7 +2,7 @@
 
 A tier-1 run records, for each orbit of a support list, whether the decoder failed on one random translate of it.
 This page explains how those outcomes become a failure probability.
-We begin with the probability of a single fault set, which comes in two forms, and explain why the headline floor uses the one that the trapping-set paper (Pacenti, Raveendran and Vasić, arXiv:2608.11516) plots rather than the one it prints.
+We begin with the probability of a single fault set, which comes in two forms, and explain why the headline floor uses the one consistent with Fig. 1 of the trapping-set paper (Pacenti, Raveendran and Vasić, arXiv:2608.11516) rather than the one it prints.
 We then turn to the estimator built from one translate per orbit and its sampling error, as decided in [ADR 0003](../adr/0003-estimate-the-floor-from-one-translate-per-orbit.md).
 Finally we discuss the ceiling that bounds the estimate, the count of failing trapping sets, and the conversion to a rate per round.
 
@@ -41,12 +41,16 @@ Dropping the product over the other columns leaves the occurrence probability,
 ```
 
 the probability that every fault in S occurs, whatever else occurs.
-With it the same failures give 2.4e-10 and 9.5e-9 per round, within the reading error of the plot at both points, so the figure plots the occurrence probability and not the printed Eq. (1).
+With it the same failures give 2.4e-10 and 9.5e-9 per round.
+Values read off a log-scale plot are accurate to about a factor of 2, and both sit just below the lower end of the readings, at 0.8 and 0.95 of it.
+The figure is therefore consistent with the occurrence probability, while the printed Eq. (1) falls where the figure rises and is about 100 times too low at p = 4e-4 and 5e4 to 1e5 times too low at p = 1e-3.
+Two points cannot single out the occurrence form, however: any form that stays within that factor of it at both points fits as well, for instance the exact-event probability divided by the probability of no fault, i.e. the product of π_i / (1 - π_i) over S, which differs from the occurrence form by at most 1.5% at p up to 1e-3.
+Which form the authors computed remains open.
 
 The two forms answer different questions.
 The events "exactly the faults in S occur" are disjoint for different S, so the exact-event floor is a rigorous lower bound on the probability of the failures it covers.
 The occurrence events overlap, and counting each of them as a failure assumes that the decoder fails on every fault pattern containing S, which is the assumption behind the classical trapping-set estimate of an error floor.
-We report both, with the occurrence floor as the headline, since it is the paper's quantity and the one a Monte Carlo simulation can confirm ([ADR 0005](../adr/0005-report-the-floor-as-an-occurrence-probability.md)).
+We report both, with the occurrence floor as the headline: of the forms that fit the figure, it is the one with a direct meaning, the probability that every fault in S occurs, and it is the quantity a Monte Carlo simulation can test ([ADR 0005](../adr/0005-report-the-floor-as-an-occurrence-probability.md)).
 The rest of this page applies to either form, and writes Pr(S; p) for the one in use.
 
 ## One translate per orbit
@@ -66,7 +70,7 @@ The estimate is
 
 The translate is uniform, so the expectation of X_O is q_O, the failure probability averaged over the orbit, and the expectation of the estimate is the sum over orbits of m_O q_O, which is the target.
 This holds for any decoder, equivariant or not.
-The orbit size enters because not every orbit has 72 members: 410 support orbits of weight 2 and 4 have 36, and 12 of weight 3 have 24.
+The orbit size enters because each orbit stands for that many supports, and it is not a constant factor because not every orbit has 72 members: 410 support orbits of weight 2 and 4 have 36, and 12 of weight 3 have 24.
 
 ## The sampling error
 
@@ -79,11 +83,16 @@ We report its square root,
 ```
 
 as the sampling error.
-It bounds the standard deviation from above in expectation, and is close to it when the q_O are small, as they are for the failures of interest.
+Its square is therefore an upwardly biased estimate of the variance: nearly unbiased when the q_O are small, and increasingly an overestimate as they approach 1.
+The q_O of the failing orbits are not measured here; tier 2, which decodes all 72 translates, measures them.
+Nothing similar holds for σ itself: by Jensen's inequality its expectation is at most the square root of that of σ², so σ is a plug-in estimate of the standard deviation rather than a bound on it.
+How far to trust it depends on how many orbits carry the estimate.
+The ratio (P̂/σ)² is the number of equal-mass failing orbits that would give the same ratio of estimate to error, and for the Relay-BP baseline it is about 32 at every p, out of 450 failing orbits.
+With so few effective terms, σ is itself a noisy estimate, so the band is best read as a rough error and not as a confidence interval.
 For a decoder that commutes with the translations the true variance is zero, so σ then overstates the error.
 
 Notice that σ never exceeds the estimate, since the square root of a sum of squares of non-negative terms is at most their sum.
-The lower end of the band, the estimate minus σ, is therefore never negative, and it is zero exactly when a single orbit failed.
+The lower end of the band, the estimate minus σ, is therefore never negative, and it is zero exactly when at most one orbit failed.
 
 ## The ceiling
 

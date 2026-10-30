@@ -2,8 +2,8 @@
 
 Two probabilities of a set S of columns are used (ADR 0005). The occurrence probability, the
 product of the priors of the columns in S, is the probability that every fault in S occurs,
-whatever else occurs; it is the headline floor, and it is what Fig. 1 of Pacenti, Raveendran
-and Vasić [1]_ plots. The exact-event probability, their Eq. (1), multiplies it by the product
+whatever else occurs; it is the headline floor, and it is consistent with Fig. 1 of Pacenti,
+Raveendran and Vasić [1]_. The exact-event probability, their Eq. (1), multiplies it by the product
 of one minus the prior over every other column, so it is the probability that exactly the
 faults in S occur. The floor of a decoder is the sum of either over the supports it fails on;
 ADR 0003 gives the estimator from one random translate per orbit and its sampling error. The
