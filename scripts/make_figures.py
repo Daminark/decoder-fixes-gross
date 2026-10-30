@@ -7,7 +7,8 @@ every p of the two grids below, and the decode cost. ``<results>/ceiling.json`` 
 mass of every list the runs use, at the same p. When the registry has a ``[gate]`` table, the
 run it names, which must be registered with the Relay-BP baseline decoder, is evaluated against
 the trapping-set paper and ``<results>/gate_relay_bp.json`` is written
-(:func:`decoder_fixes_gross.gate.evaluate`). Each file records the hashes of its inputs and the
+(:func:`decoder_fixes_gross.gate.evaluate`), last, after every other record, so that a refusal
+by ``evaluate`` leaves the others in place and no gate record. Each file records the hashes of its inputs and the
 commit of this code. Takes seconds.
 
 Before computing anything, the command reads ``<results>/lists.json``, the record of the build
@@ -113,6 +114,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     provenance = {"commit": commit_hash(ROOT), "p_grids": {"table": TABLE_P, "curve": CURVE_P}}
 
     args.results.mkdir(exist_ok=True)
+    gate_summary: dict[str, Any] | None = None
     for entry, run in zip(registry, runs, strict=True):
         run_lists = {name: lists[name] for name in entry["lists"]}
         summary = summarize(run, run_lists, lets, priors_by_p)
@@ -123,15 +125,9 @@ def main(argv: Sequence[str] | None = None) -> None:
             "run_seed": run.config.run_seed,
             "run_commit": run.config.commit,
         } | provenance
-        floor_name = f"floor_{entry['id']}.json"
-        write(args.results / floor_name, record | summary)
+        write(args.results / f"floor_{entry['id']}.json", record | summary)
         if entry["id"] == gate_run:
-            gate = {
-                "run_id": gate_run,
-                "commit": provenance["commit"],
-                "inputs": {"floor": floor_name, "run_digest": summary["inputs"]["run_digest"]},
-            }
-            write(args.results / GATE_FILE, gate | evaluate(summary))
+            gate_summary = summary
     write(
         args.results / "ceiling.json",
         provenance
@@ -140,6 +136,20 @@ def main(argv: Sequence[str] | None = None) -> None:
             "ceiling": ceiling(lists, priors_by_p),
         },
     )
+    # Last, so that a refusal by evaluate (a failure at weight 3 or below) loses no other
+    # record, and with the previous gate record removed first, so that a refusal does not
+    # leave its verdict beside the new records.
+    if gate_summary is not None:
+        (args.results / GATE_FILE).unlink(missing_ok=True)
+        gate = {
+            "run_id": gate_run,
+            "commit": provenance["commit"],
+            "inputs": {
+                "floor": f"floor_{gate_run}.json",
+                "run_digest": gate_summary["inputs"]["run_digest"],
+            },
+        }
+        write(args.results / GATE_FILE, gate | evaluate(gate_summary))
 
 
 if __name__ == "__main__":
