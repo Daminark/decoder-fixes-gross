@@ -31,10 +31,13 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+    "matplotlib": ("https://matplotlib.org/stable/", None),
 }
 
 # Notebooks are stored as MyST Markdown (Jupytext) and executed during the build; cached when unchanged.
 nb_execution_mode = "cache"
 nb_execution_raise_on_error = True
+# Markdown outputs of cells are parsed as MyST, which has tables; the default, CommonMark, does not.
+nb_render_markdown_format = "myst"
 
 numpydoc_show_class_members = False
