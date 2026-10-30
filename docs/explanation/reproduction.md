@@ -173,7 +173,7 @@ The figure below shows our floor over the whole grid of rates, in the two forms 
 ---
 tags: [remove-input]
 ---
-figure = floor_against_fig1(floor)
+figure = floor_against_fig1(floor, gate)
 svg = io.StringIO()
 figure.savefig(svg, format="svg")
 SVG(svg.getvalue())

@@ -9,8 +9,6 @@ from typing import Any
 
 from matplotlib.figure import Figure
 
-from decoder_fixes_gross.gate import FIG1_READINGS
-
 # Categorical slots 1 and 2 of the reference palette, and neutral ink for the readings.
 _OCCURRENCE_COLOR = "#2a78d6"
 _EXACT_EVENT_COLOR = "#eb6834"
@@ -20,7 +18,7 @@ _READING_COLOR = "#3d3d3a"
 _Y_BOTTOM = 1e-16
 
 
-def floor_against_fig1(floor_record: Mapping[str, Any]) -> Figure:
+def floor_against_fig1(floor_record: Mapping[str, Any], gate_record: Mapping[str, Any]) -> Figure:
     """Return the per-round floor over the curve grid, with the Fig. 1 readings beside it.
 
     Parameters
@@ -28,13 +26,17 @@ def floor_against_fig1(floor_record: Mapping[str, Any]) -> Figure:
     floor_record : Mapping
         A floor record as written to ``results/floor_<run_id>.json`` by the aggregation
         command: its ``p_grids.curve`` and ``floor`` entries are read.
+    gate_record : Mapping
+        A gate record as written to ``results/gate_relay_bp.json``: the ``p`` and ``reading``
+        of each ``floor_check`` entry are read.
 
     Returns
     -------
     matplotlib.figure.Figure
         One log-log axes. Its first line is the occurrence floor per round, its second the
         exact-event floor; the band around the occurrence floor spans its per-round low and
-        high ends; the vertical segments are the ranges read off Fig. 1 of arXiv:2608.11516.
+        high ends; the vertical segments are the ranges of the gate record's floor check, read
+        off Fig. 1 of arXiv:2608.11516.
         A point whose per-round value is null is left out of its line, and a null end leaves
         that rate out of the band. The vertical axis is cut at 1e-16.
     """
@@ -78,20 +80,24 @@ def floor_against_fig1(floor_record: Mapping[str, Any]) -> Figure:
         linewidth=0,
         label="Occurrence floor -+ error",
     )
+    readings = [
+        (point["p"], point["reading"]["low"], point["reading"]["high"])
+        for point in gate_record["floor_check"]
+    ]
     ax.vlines(
-        list(FIG1_READINGS),
-        [low for low, _ in FIG1_READINGS.values()],
-        [high for _, high in FIG1_READINGS.values()],
+        [p for p, _, _ in readings],
+        [low for _, low, _ in readings],
+        [high for _, _, high in readings],
         color=_READING_COLOR,
         linewidth=2,
         zorder=3,
         label="Fig. 1 estimate, as read",
     )
-    # A reading spans a tenth of a decade, so a hollow marker at its geometric middle shows
-    # where it sits on the occurrence line.
+    # Each reading is short on the log axis and sits on the occurrence line, so a hollow marker
+    # at its geometric middle shows where it is.
     ax.scatter(
-        list(FIG1_READINGS),
-        [(low * high) ** 0.5 for low, high in FIG1_READINGS.values()],
+        [p for p, _, _ in readings],
+        [(low * high) ** 0.5 for _, low, high in readings],
         s=90,
         marker="D",
         facecolors="none",
