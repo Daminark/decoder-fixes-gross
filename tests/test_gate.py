@@ -119,7 +119,7 @@ def test_run_without_failures_is_a_loss() -> None:
 
 
 def test_failure_at_weight_three_is_refused_until_tier_two() -> None:
-    with pytest.raises(ValueError, match="slice 11"):
+    with pytest.raises(ValueError, match="every translate with five decoder seeds"):
         evaluate(_record(failing_orbits_by_weight={3: 1, 4: 450}))
 
 

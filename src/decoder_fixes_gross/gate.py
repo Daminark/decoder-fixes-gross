@@ -47,7 +47,7 @@ RECHECK_FACTOR = 10.0
 MAX_CORRECTED_WEIGHT = 3
 
 
-class Verdict(StrEnum):
+class _Verdict(StrEnum):
     """Outcome of the gate."""
 
     WIN = "win"
@@ -55,7 +55,7 @@ class Verdict(StrEnum):
     LOSS = "loss"
 
 
-class FloorLabel(StrEnum):
+class _FloorLabel(StrEnum):
     """Outcome of the floor check at one Fig. 1 point."""
 
     CONSISTENT = "consistent"
@@ -87,14 +87,15 @@ def evaluate(record: Mapping[str, Any]) -> dict[str, Any]:
         where the paper's is 0). ``floor_check``: at each Fig. 1
         point, the reading and, for both forms, the per-round floor and its ``factor`` from the
         read range, max(low / floor, floor / high, 1), None when the floor is 0 or undefined;
-        the occurrence form also has the ``label`` of the check. ``rule``: the thresholds.
+        the occurrence form also has the ``label`` of the check: "consistent", "inconsistent"
+        or "recheck". ``rule``: the thresholds.
 
     Raises
     ------
     ValueError
         If a support of weight ``MAX_CORRECTED_WEIGHT`` or below failed, since only tier 2
-        (slice 11) can tell a loss from a seed effect there; if a Table II class or a Fig. 1
-        rate is missing from ``record``.
+        (every translate, five decoder seeds) can tell a loss from a seed effect there; if a
+        Table II class or a Fig. 1 rate is missing from ``record``.
 
     Notes
     -----
@@ -108,8 +109,8 @@ def evaluate(record: Mapping[str, Any]) -> dict[str, Any]:
     low = [w for w in failing_weights if w <= MAX_CORRECTED_WEIGHT]
     if low:
         raise ValueError(
-            f"supports of weight {low} failed; tier 2 (slice 11) must confirm them before the "
-            "gate can call them a loss or a seed effect"
+            f"supports of weight {low} failed; tier 2 must confirm them on every translate with "
+            "five decoder seeds before the gate can call them a loss or a seed effect"
         )
     missing = [_key(c) for c in PAPER_N_FAIL if _key(c) not in record["lets"]]
     if missing:
@@ -141,11 +142,11 @@ def evaluate(record: Mapping[str, Any]) -> dict[str, Any]:
         "largest_class": {"found": largest, "holds": largest == [_key(PAPER_LARGEST)]},
     }
     if not conditions["zero_classes"]["holds"] or abs(deviation) > LOSS_DEVIATION:
-        verdict = Verdict.LOSS
+        verdict = _Verdict.LOSS
     elif all(condition["holds"] for condition in conditions.values()):
-        verdict = Verdict.WIN
+        verdict = _Verdict.WIN
     else:
-        verdict = Verdict.INCONCLUSIVE
+        verdict = _Verdict.INCONCLUSIVE
 
     return {
         "verdict": verdict.value,
@@ -188,10 +189,10 @@ def _floor_point(
         point[form] = {"per_round": value, "factor": factor}
     factor = point["occurrence"]["factor"]
     if factor is None or factor > RECHECK_FACTOR:
-        label = FloorLabel.RECHECK
+        label = _FloorLabel.RECHECK
     elif factor <= CONSISTENT_FACTOR:
-        label = FloorLabel.CONSISTENT
+        label = _FloorLabel.CONSISTENT
     else:
-        label = FloorLabel.INCONSISTENT
+        label = _FloorLabel.INCONSISTENT
     point["occurrence"]["label"] = label.value
     return point
