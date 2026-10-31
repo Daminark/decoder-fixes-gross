@@ -6,3 +6,8 @@
 id = "relay-bp-baseline"
 decoder = "relay-bp-baseline"
 lists = ["u1", "u2", "u3", "u4"]
+
+# The run the week-1 gate compares with the trapping-set paper (results/gate_relay_bp.json);
+# it must be registered above with the relay-bp-baseline decoder.
+[gate]
+run = "relay-bp-baseline"

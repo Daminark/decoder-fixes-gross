@@ -595,6 +595,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "ldpc" },
+    { name = "matplotlib" },
     { name = "numpy" },
     { name = "relay-bp" },
     { name = "scipy" },
@@ -625,6 +626,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "ldpc", specifier = ">=2.4.0" },
+    { name = "matplotlib", specifier = ">=3.8" },
     { name = "numpy", specifier = ">=2.4.6" },
     { name = "relay-bp", specifier = "==0.2.0" },
     { name = "scipy", specifier = ">=1.17.1" },

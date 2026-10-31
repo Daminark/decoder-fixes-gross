@@ -1,0 +1,160 @@
+{
+  "run_id": "relay-bp-baseline",
+  "commit": "6207b7e624d93b66b315e9eac8d62d819884660f",
+  "inputs": {
+    "floor": "floor_relay-bp-baseline.json",
+    "run_digest": "715aeed683a76963d72af415f5663864b429617917c0b198b9c50d1c3cca59a4"
+  },
+  "verdict": "win",
+  "conditions": {
+    "first_failing_weight": {
+      "found": 4,
+      "holds": true
+    },
+    "zero_classes": {
+      "found": {
+        "a4_b0": 0,
+        "a4_b2": 0,
+        "a4_b3": 0,
+        "a5_b0": 0,
+        "a5_b2": 0
+      },
+      "holds": true
+    },
+    "paper_classes": {
+      "found": {
+        "a4_b4": 23328,
+        "a4_b5": 1152,
+        "a5_b3": 68110,
+        "a5_b4": 6408,
+        "a5_b5": 44352
+      },
+      "holds": true
+    },
+    "total": {
+      "found": 143350,
+      "paper": 152857,
+      "shortfall": 9507,
+      "deviation": -0.06219538522933199,
+      "holds": true
+    },
+    "largest_class": {
+      "found": [
+        "a5_b3"
+      ],
+      "holds": true
+    }
+  },
+  "classes": {
+    "a4_b0": {
+      "published": 0,
+      "closed": 0,
+      "paper": 0,
+      "shortfall": 0,
+      "ratio": null
+    },
+    "a4_b2": {
+      "published": 0,
+      "closed": 0,
+      "paper": 0,
+      "shortfall": 0,
+      "ratio": null
+    },
+    "a4_b3": {
+      "published": 0,
+      "closed": 0,
+      "paper": 0,
+      "shortfall": 0,
+      "ratio": null
+    },
+    "a4_b4": {
+      "published": 23328,
+      "closed": 23328,
+      "paper": 23751,
+      "shortfall": 423,
+      "ratio": 0.9821902235695339
+    },
+    "a4_b5": {
+      "published": 1152,
+      "closed": 1152,
+      "paper": 1425,
+      "shortfall": 273,
+      "ratio": 0.8084210526315789
+    },
+    "a5_b0": {
+      "published": 0,
+      "closed": 0,
+      "paper": 0,
+      "shortfall": 0,
+      "ratio": null
+    },
+    "a5_b2": {
+      "published": 0,
+      "closed": 0,
+      "paper": 0,
+      "shortfall": 0,
+      "ratio": null
+    },
+    "a5_b3": {
+      "published": 68110,
+      "closed": 68112,
+      "paper": 68239,
+      "shortfall": 129,
+      "ratio": 0.998109585427688
+    },
+    "a5_b4": {
+      "published": 6408,
+      "closed": 6408,
+      "paper": 13045,
+      "shortfall": 6637,
+      "ratio": 0.49122269068608665
+    },
+    "a5_b5": {
+      "published": 44352,
+      "closed": 44352,
+      "paper": 46397,
+      "shortfall": 2045,
+      "ratio": 0.9559238743884303
+    }
+  },
+  "floor_check": [
+    {
+      "p": 0.0004,
+      "reading": {
+        "low": 3e-10,
+        "high": 4e-10
+      },
+      "occurrence": {
+        "per_round": 2.4423666827777794e-10,
+        "factor": 1.2283167884471822,
+        "label": "consistent"
+      },
+      "exact_event": {
+        "per_round": 3.2495432836755577e-12,
+        "factor": 92.32066595545392
+      }
+    },
+    {
+      "p": 0.001,
+      "reading": {
+        "low": 1e-08,
+        "high": 2e-08
+      },
+      "occurrence": {
+        "per_round": 9.521355315806327e-09,
+        "factor": 1.0502706461756637,
+        "label": "consistent"
+      },
+      "exact_event": {
+        "per_round": 1.9452637713920002e-13,
+        "factor": 51406.91019421061
+      }
+    }
+  ],
+  "rule": {
+    "win_deviation": 0.1,
+    "loss_deviation": 0.3,
+    "consistent_factor": 3.0,
+    "recheck_factor": 10.0
+  }
+}
