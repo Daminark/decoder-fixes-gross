@@ -13,7 +13,7 @@ dependencies = [
     # Pinned: the model is derived from the stored circuit by Stim, so Stim is part of the fixture.
     "stim==1.16.0",
     # Pinned: the Relay-BP baseline must match the version its reproduction check was run with.
-    "relay-bp==0.2.0",
+    "relay-bp==0.2.2",
     "ldpc>=2.4.0",
     # 3.8 is the first release with type annotations, which the strict type check needs.
     "matplotlib>=3.8",
