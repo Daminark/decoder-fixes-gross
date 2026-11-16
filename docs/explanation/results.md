@@ -1,7 +1,4 @@
 # Results
 
-What was measured, how it compares to the baselines including where it is worse, and what the comparison depends on.
-
-## Limitations
-
-Known imperfections in the method or the comparison, each with the reason it was left as is and the fix that was considered.
+This page is written once the results are frozen, in December 2026.
+What exists now is [the reproduction](reproduction.md) of the trapping-set paper's Relay-BP result, with its differences from the paper's setup, and [the floor estimate](floor-estimate.md) that every later comparison uses.
