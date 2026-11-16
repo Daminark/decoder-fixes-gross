@@ -25,17 +25,18 @@ Pick a run seed once, for example with NumPy's own entropy source:
 uv run python -c "import numpy; print(numpy.random.SeedSequence().entropy)"
 ```
 
-Then start the run from the worktree, pointing `--data` at the main checkout's `data/`, so that the lists are read from there and the run is written there:
+Then start the run from the worktree, pointing `--data` at the main checkout's `data/`, so that the lists are read from there and the run is written there.
+The commands below assume the worktree sits beside the main checkout, as the `git worktree add` above puts it; adjust the `../decoder-fixes-gross` paths otherwise.
 
 ```bash
-mkdir -p ~/Projects/decoder-fixes-gross/data/runs && uv run python scripts/run_tier1.py --decoder relay-bp-baseline --seed SEED --run-id relay-bp-baseline --data ~/Projects/decoder-fixes-gross/data 2>&1 | tee -a ~/Projects/decoder-fixes-gross/data/runs/relay-bp-baseline.log
+mkdir -p ../decoder-fixes-gross/data/runs && uv run python scripts/run_tier1.py --decoder relay-bp-baseline --seed SEED --run-id relay-bp-baseline --data ../decoder-fixes-gross/data 2>&1 | tee -a ../decoder-fixes-gross/data/runs/relay-bp-baseline.log
 ```
 
 The terminal must stay open while the run lasts: closing it sends SIGHUP to the whole foreground job, Python included, and the run stops at once.
 To run unattended instead, detach the run from the terminal, so that it survives the hangup, and send its output straight to the log, then follow the log as under Watch below:
 
 ```bash
-mkdir -p ~/Projects/decoder-fixes-gross/data/runs && nohup uv run python scripts/run_tier1.py --decoder relay-bp-baseline --seed SEED --run-id relay-bp-baseline --data ~/Projects/decoder-fixes-gross/data >> ~/Projects/decoder-fixes-gross/data/runs/relay-bp-baseline.log 2>&1 &
+mkdir -p ../decoder-fixes-gross/data/runs && nohup uv run python scripts/run_tier1.py --decoder relay-bp-baseline --seed SEED --run-id relay-bp-baseline --data ../decoder-fixes-gross/data >> ../decoder-fixes-gross/data/runs/relay-bp-baseline.log 2>&1 &
 ```
 
 The run directory `data/runs/relay-bp-baseline/` receives `config.json` first and then one `shard_<k>.npz` per shard of at most 50,000 orbits.
@@ -64,11 +65,11 @@ Shards finish out of order, since each worker takes the next shard as it becomes
 To follow the log, or to count finished shards against the total in the first line:
 
 ```bash
-tail -f ~/Projects/decoder-fixes-gross/data/runs/relay-bp-baseline.log
+tail -f ../decoder-fixes-gross/data/runs/relay-bp-baseline.log
 ```
 
 ```bash
-ls ~/Projects/decoder-fixes-gross/data/runs/relay-bp-baseline/shard_*.npz | wc -l
+ls ../decoder-fixes-gross/data/runs/relay-bp-baseline/shard_*.npz | wc -l
 ```
 
 ## Resume

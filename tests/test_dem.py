@@ -22,6 +22,13 @@ def test_stored_circuit_loads_as_package_data() -> None:
     assert circuit.num_observables == 12
 
 
+def test_stored_circuit_text_is_unchanged() -> None:
+    # The digest recorded in data/PROVENANCE.md when the file was generated.
+    text = (files("decoder_fixes_gross") / "data" / "gross_z_r12.stim").read_bytes()
+    expected = "ed17942e821ca2cda0e824994a0f5fc0bfd7fc5b4c71f3d2c3c853d22b4b77f0"
+    assert hashlib.sha256(text).hexdigest() == expected
+
+
 def test_every_noise_argument_in_stored_circuit_is_1e_3() -> None:
     # Measurements count as noisy gates in Stim; an argument on one would be a flip probability.
     flat = _stored_circuit().flattened()
