@@ -1,7 +1,7 @@
 # Pacenti, Raveendran and Vasić, trapping-set supports of the gross code
 
 The trapping-set supports read by `decoder_fixes_gross.lets` are the dataset "Trapping-set supports for the \[[144,12,12]\] bivariate-bicycle code", Zenodo record 21878685 (https://doi.org/10.5281/zenodo.21878685), archive `144_12_12_dem_LETS.zip`, md5 `1efaaa8083405c2b4fd0d8b090d26b98`.
-It accompanies M. Pacenti, N. Raveendran and B. Vasić, arXiv:2608.11516, and was enumerated with https://github.com/pacentim/dem_trapping_sets.
+It accompanies M. Pacenti, N. Raveendran and B. Vasić, arXiv:2608.11516, and was enumerated with https://github.com/Error-Correction-Lab/dem_trapping_sets.
 
 Two committed files are derived from it:
 
